@@ -1,0 +1,527 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Spinner from "../../../components/Spinner";
+import { Button } from "../../../components/ui/button";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { setArtToy, setArtToyLoading } from "../../../redux/slice/productSlice";
+import { useRouter } from "next/navigation";
+
+import ProductImgSlider from "@/components/product/ProductImgSlider";
+import useFetchProductID from "@/lib/request/useFetchProductID";
+import { priceFormat } from "@/lib/utils";
+import { addToCart, setTotal } from "@/redux/slice/cartSlice";
+import { Star, StarHalf } from "lucide-react";
+import React from "react";
+const Page = ({ params }: { params: { id: string } }) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { artToy, artToyLoading } = useAppSelector((state) => state.product);
+  const [isAdmin, setIsAdmin] = useState(false); // Track if the user is admin
+  const [isEditing, setIsEditing] = useState(false); // Track if we are in edit mode
+  const [updatedToy, setUpdatedToy] = useState(artToy || {}); // Form state for editing
+
+  // Check if the user is an admin (this could come from user authentication info)
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role === "admin") {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  // Fetch the art toy data when the page loads
+  useEffect(() => {
+    const fetchArtToy = async () => {
+      dispatch(setArtToyLoading(true));
+
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`
+        );
+        const result = await response.json();
+
+        if (response.ok && result.success && result.data) {
+          dispatch(setArtToy(result.data)); // Update Redux state with the actual art toy data
+          setUpdatedToy(result.data); // Initialize form fields with current values
+        }
+      } catch (error) {
+        console.error("Error fetching ArtToy", error);
+      } finally {
+        dispatch(setArtToyLoading(false)); // Set loading state to false after fetching
+      }
+    };
+
+    fetchArtToy();
+  }, [dispatch, params.id]);
+
+  // Show loading spinner while the art toy data is being fetched
+  if (artToyLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spinner />
+      </div>
+    );
+  }
+
+  // Handle the form submission (update art toy)
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            ...updatedToy,
+            images: updatedToy.images || [],
+            tags: updatedToy.tags || [],
+          }),
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        alert("Art toy updated successfully!");
+        setIsEditing(false); // Exit edit mode
+      } else {
+        alert(data.message || "Failed to update art toy");
+      }
+    } catch (error) {
+      alert("An error occurred while updating the art toy.");
+    }
+  };
+
+  // Handle input change for editable fields
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setUpdatedToy({ ...updatedToy, [name]: value });
+  };
+
+  const addCartHandle = () => {
+    dispatch(
+      addToCart({
+        _id: artToy._id,
+        title: artToy.name,
+        quantity: 1,
+        price: artToy.price,
+        img: artToy.posterPicture,
+      })
+    );
+
+    dispatch(setTotal());
+  };
+
+  const handleArrayChange = (
+    field: "images" | "tags",
+    index: number,
+    value: string
+  ) => {
+    const arr = [...(updatedToy[field] || [])];
+    arr[index] = value;
+    setUpdatedToy({ ...updatedToy, [field]: arr });
+  };
+
+  const handleArrayAdd = (field: "images" | "tags") => {
+    setUpdatedToy({
+      ...updatedToy,
+      [field]: [...(updatedToy[field] || []), ""],
+    });
+  };
+
+  const handleArrayRemove = (field: "images" | "tags", index: number) => {
+    const arr = [...(updatedToy[field] || [])];
+    arr.splice(index, 1);
+    setUpdatedToy({ ...updatedToy, [field]: arr });
+  };
+
+  const finalSellingPrice =
+    artToy.price * (1 - artToy.discountPercentage / 100);
+
+  return (
+    <>
+      {artToy && artToy.images && artToy.name && artToy.description ? (
+        <div className="sm:flex block">
+          <ProductImgSlider images={artToy.images} />
+          <div className="flex-1 p-4">
+            <h1 className="text-4xl ">{artToy.name}</h1>
+
+            {/* -----RATING----- */}
+            {artToy.rating && (
+              <div className="flex items-center ga-2 py-2">
+                <span className="px-1 bg-yellow-400 rounded-sm mr-2">
+                  {artToy.rating}
+                </span>
+                {Array.from({ length: 5 }, (_, index) => {
+                  let num = index + 0.5;
+                  return (
+                    <>
+                      {artToy.rating && (
+                        <span key={index}>
+                          {artToy.rating >= index + 1 ? (
+                            <Star
+                              className="fill-yellow-300"
+                              strokeWidth={1.25}
+                              size={18}
+                            />
+                          ) : artToy.rating >= num ? (
+                            <StarHalf
+                              className="fill-yellow-300"
+                              strokeWidth={1.25}
+                              size={18}
+                            />
+                          ) : (
+                            ""
+                          )}
+                        </span>
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* -----PRICE----- */}
+            <div className="flex gap-2 py-4 items-center">
+              <span className="text-3xl">{priceFormat(finalSellingPrice)}</span>
+              {artToy.price && (
+                <del className="text-gray-500 ">
+                  {priceFormat(artToy.price)}
+                </del>
+              )}
+            </div>
+
+            {/* Display the description of the art toy */}
+            {artToy.description && (
+              <div className="mt-2 space-y-2 text-lg text-gray-700">
+                {artToy.description.split("\n").map((line, index) => {
+                  // 1. Remove extra whitespace from ends
+                  const text = line.trim();
+
+                  // Skip empty lines
+                  if (!text) return null;
+
+                  // 2. Check if line starts with "--"
+                  const isBullet = text.startsWith("--");
+
+                  // Remove the "--" characters from the text if present
+                  const cleanText = isBullet ? text.substring(2).trim() : text;
+
+                  // 3. Split by the first colon ":" to separate Title and Body
+                  const [title, ...rest] = cleanText.split(":");
+                  const body = rest.join(":"); // Rejoin just in case the body has colons too
+
+                  return (
+                    <div key={index} className="flex items-start">
+                      {/* If it was "--", render a bullet point */}
+                      {isBullet && (
+                        <span className="mr-2 text-gray-400">•</span>
+                      )}
+
+                      <div>
+                        {body ? (
+                          // If we found a colon, bold the title
+                          <>
+                            <span className="font-bold text-gray-900">
+                              {title}:
+                            </span>
+                            {body}
+                          </>
+                        ) : (
+                          // If no colon, just render the text
+                          cleanText
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* More product details */}
+            <div className="mt-4">
+              {/* <p><strong>SKU:</strong> {artToy.sku}</p> */}
+              <p>
+                <strong>Arrival Date:</strong>{" "}
+                {new Date(artToy.arrivalDate).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Available Quota:</strong> {artToy.availableQuota}
+              </p>
+            </div>
+
+            {/* Admin-only controls: Edit */}
+            {isAdmin && (
+              <div className="mt-6 flex gap-4">
+                <Button
+                  className="w-32"
+                  onClick={() => setIsEditing(!isEditing)} // Toggle editing mode
+                >
+                  {isEditing ? "Cancel Edit" : "Edit"}
+                </Button>
+
+                {/* Only show the "Save" button if in editing mode */}
+                {isEditing && (
+                  <Button className="w-32" onClick={handleSubmit}>
+                    Save Changes
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* Edit Form (visible only if in editing mode) */}
+            {isEditing && (
+              <div className="mt-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="sku"
+                    >
+                      SKU
+                    </label>
+                    <input
+                      type="text"
+                      id="sku"
+                      name="sku"
+                      value={updatedToy.sku}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="name"
+                    >
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={updatedToy.name}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="description"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      rows={4}
+                      value={updatedToy.description}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="arrivalDate"
+                    >
+                      Arrival Date
+                    </label>
+                    <input
+                      type="date"
+                      id="arrivalDate"
+                      name="arrivalDate"
+                      value={updatedToy.arrivalDate}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="availableQuota"
+                    >
+                      Available Quota
+                    </label>
+                    <input
+                      type="number"
+                      id="availableQuota"
+                      name="availableQuota"
+                      value={updatedToy.availableQuota}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      className="block text-sm font-medium text-gray-700"
+                      htmlFor="posterPicture"
+                    >
+                      Poster Picture URL
+                    </label>
+                    <input
+                      type="text"
+                      id="posterPicture"
+                      name="posterPicture"
+                      value={updatedToy.posterPicture}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  {/* ---- PRICE ---- */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={updatedToy.price}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  {/* ---- DISCOUNT PERCENTAGE ---- */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      name="discountPercentage"
+                      value={updatedToy.discountPercentage}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  {/* ---- RATING ---- */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Rating
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="5"
+                      name="rating"
+                      value={updatedToy.rating}
+                      onChange={handleInputChange}
+                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+
+                  {/* ---- MULTIPLE IMAGES ---- */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Images
+                    </label>
+                    {updatedToy.images?.map((img: string, index: number) => (
+                      <div key={index} className="flex gap-2 mt-2">
+                        <input
+                          type="text"
+                          value={img}
+                          onChange={(e) =>
+                            handleArrayChange("images", index, e.target.value)
+                          }
+                          className="w-full p-3 border border-gray-300 rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => handleArrayRemove("images", index)}
+                        >
+                          X
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      className="mt-2"
+                      onClick={() => handleArrayAdd("images")}
+                    >
+                      + Add Image
+                    </Button>
+                  </div>
+
+                  {/* ---- TAGS ---- */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Tags
+                    </label>
+                    {updatedToy.tags?.map((tag: string, index: number) => (
+                      <div key={index} className="flex gap-2 mt-2">
+                        <input
+                          type="text"
+                          value={tag}
+                          onChange={(e) =>
+                            handleArrayChange("tags", index, e.target.value)
+                          }
+                          className="w-full p-3 border border-gray-300 rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => handleArrayRemove("tags", index)}
+                        >
+                          X
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      className="mt-2"
+                      onClick={() => handleArrayAdd("tags")}
+                    >
+                      + Add Tag
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-screen text-lg text-gray-600">
+          <p>No ArtToy data found. Please check the API or artToy object.</p>
+        </div>
+      )}
+
+      {/* -----ADD TO CART & BUY NOW----- */}
+      <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white border border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
+        <Button
+          className="rounded-none max-sm:flex-1 w-48"
+          size={"lg"}
+          onClick={addCartHandle}
+        >
+          Add to Cart
+        </Button>
+        {/* <Button
+          variant={"destructive"}
+          className="rounded-none max-sm:flex-1 w-48"
+          size={"lg"}
+        >
+          Buy Now
+        </Button> */}
+      </div>
+    </>
+  );
+};
+
+export default Page;
