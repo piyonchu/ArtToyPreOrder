@@ -15,13 +15,21 @@ const Page = () => {
     <main className="grid grid-cols-1 md:grid-cols-2 h-[100dvh]">
       <section className="grid justify-center content-center">
         <div className="space-y-1">
-          <h2 className="text-2xl font-medium text-sky-900">Welcome back to ArtToy Pre-Order</h2>
+          <h2 className="text-2xl font-medium text-sky-900">
+            Welcome back to ArtToy Pre-Order
+          </h2>
+          <h2 className="py-2 text-sky-900">
+            Create an account
+          </h2>
+
           <p className="py-2 text-sky-900">
-            {"Don't"} have an account
-            <Link href={"/signup"} className="underline">
-              Create an account
-            </Link>{" "}
-            here.
+            {/* 1. Add the missing '?' manually */}
+            Already have an account?
+            {/* 2. Add {" "} to force a space before the link */}{" "}
+            <Link href={"/signin"} className="translate-y-1 underline">
+              Sign in
+            </Link>
+            {/* 3. Add {" "} to force a space after the link */} here.
           </p>
         </div>
         <div className="grid gap-4">
@@ -65,9 +73,7 @@ const Page = () => {
         </Button>
         <figure className="h-full">
           <Image
-            src={
-              "https://4kwallpapers.com/images/walls/thumbs_3t/19189.jpeg"
-            }
+            src={"https://4kwallpapers.com/images/walls/thumbs_3t/19189.jpeg"}
             width={500}
             height={500}
             alt="sign up"
