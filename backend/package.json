@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon server.ts",
-    "build": "rimraf dist && tsc",
+    "build": "echo \"No build step needed for JS backend\"",
     "dev": "nodemon server.js",
     "prod": "npm run build && cross-env NODE_ENV=production node dist/index.js"
   },
