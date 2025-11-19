@@ -160,7 +160,7 @@ app.use((err, req, res, next) => {
 // LOCAL SERVER ONLY
 // --------------------
 if (process.env.VERCEL !== "1") {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 8080;
   app.listen(PORT, () => {
     console.log(
       `YourArtToy API Server running locally at http://localhost:${PORT}`
