@@ -1,5 +1,5 @@
 import { useAppDispatch } from "@/redux/hooks";
-import { setProduct, setProductLoading } from "@/redux/slice/productSlice";
+import { setArtToy, setArtToyLoading } from "@/redux/slice/productSlice";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React, { useEffect } from "react";
@@ -15,8 +15,8 @@ const useFetchProductID = ({ id }: { id: string }) => {
   });
 
   useEffect(() => {
-    dispatch(setProductLoading(isLoading));
-    dispatch(setProduct(data));
+    dispatch(setArtToyLoading(isLoading));
+    dispatch(setArtToy(data));
   }, [data, dispatch, isLoading]);
 
   return data;

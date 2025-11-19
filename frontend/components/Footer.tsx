@@ -4,7 +4,7 @@ import { Instagram, Twitter, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="grid justify-center p-4 gap-8 bg-gray-200 text-base-content">
+    <footer className="grid justify-center p-4 gap-8 bg-sky-200 text-base-content">
       <div className="flex items-center justify-center gap-10">
         <Link href={"#"} className="hover:underline">
           About us
@@ -21,29 +21,26 @@ const Footer = () => {
       </div>
       <div>
         <div className="flex items-center justify-center gap-8">
-          <Link href={"https://instagram.com/tehseen.01"} target="_blank">
+          <Link href={"#"} target="_blank">
             <Instagram />
           </Link>
-          <Link href={"https://twitter.com/tehseen_type"} target="_blank">
+          <Link href={"#"} target="_blank">
             <Twitter />
           </Link>
-          <Link
-            href={"https://www.linkedin.com/in/mohd-tehseen-962635271"}
-            target="_blank"
-          >
+          <Link href={"#"} target="_blank">
             <Linkedin />
           </Link>
         </div>
       </div>
       <div>
         <p>
-          Copyright © 2023 - All right reserved by{" "}
+          Copyright © 2025 - All rights reserved by{" "}
           <Link
-            href={"https://github.com/tehseen01"}
+            href={"#"}
             target="_blank"
             className="hover:underline"
           >
-            Muhammad Tehseen
+            6632134521 Piyongkul Rardyota
           </Link>
         </p>
       </div>

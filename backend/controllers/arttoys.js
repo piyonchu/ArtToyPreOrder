@@ -29,20 +29,19 @@ exports.getArtToys = async (req, res) => {
     createdAt,
     price,
     tags,
+    sortField,
+    sortOrder,
   } = req.query;
 
   const filters = {};
 
-
   if (rating) {
-    filters.rating = { $gte: Number(rating) }; 
+    filters.rating = { $gte: Number(rating) };
   }
-
 
   if (discountPercentage) {
     filters.discountPercentage = { $gte: Number(discountPercentage) };
   }
-
 
   if (arrivalDate) {
     const arrivalDateObj = new Date(arrivalDate);
@@ -62,19 +61,27 @@ exports.getArtToys = async (req, res) => {
     filters.price = { $lte: Number(price) };
   }
 
-
   if (tags) {
-    const tagArray = tags.split(',');
+    const tagArray = tags.split(",");
     filters.tags = { $in: tagArray };
   }
 
   try {
-    const artToys = await ArtToy.find(filters);
+    let query = ArtToy.find(filters);
+
+    // --- APPLY SORTING HERE ---
+    if (sortField && sortOrder) {
+      query = query.sort({
+        [sortField]: sortOrder === "asc" ? 1 : -1,
+      });
+    }
+
+    const artToys = await query;
 
     if (artToys.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No art toys found with the given filters',
+        message: "No art toys found with the given filters",
       });
     }
 
@@ -87,10 +94,11 @@ exports.getArtToys = async (req, res) => {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server Error',
+      message: "Server Error",
     });
   }
 };
+
 
 // @desc    Get single art toy
 // @route   GET /api/v1/arttoys/:id
@@ -126,7 +134,7 @@ exports.getArtToy = async (req, res) => {
 // @route   POST /api/v1/arttoys
 // @access  Admin
 exports.createArtToy = async (req, res) => {
-  const { sku, name, description, arrivalDate, availableQuota, posterPicture, tags, discountPercentage, price } = req.body;
+  const { sku, name, description, arrivalDate, availableQuota, posterPicture, tags, discountPercentage, price,images } = req.body;
 
   // Validate arrival date
   if (dayjs(arrivalDate).isBefore(dayjs(), 'day')) {

@@ -57,6 +57,7 @@ const StoreLayout = ({ children }: { children: React.ReactNode }) => {
           {children}
         </section>
       </Suspense>
+      
     </main>
   );
 };

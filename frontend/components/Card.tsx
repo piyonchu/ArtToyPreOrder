@@ -51,8 +51,8 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
 
   return (
     <Link href={`/${_id}`}>
-      <Card className="rounded-none grid items-center h-full">
-        <CardHeader className="bg-gray-50 aspect-[1/0.85] items-center justify-center p-0">
+      <Card className="rounded-2xl grid items-center h-full border-sky-800 border-2 bg-sky-50">
+        <CardHeader className="bg-gray-50 aspect-[1/0.85] items-center justify-center p-0 rounded-2xl">
           <figure className="h-full">
             <Image
               src={posterPicture}
@@ -64,48 +64,46 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
           </figure>
         </CardHeader>
         <CardContent className="md:p-4 md:pb-0 p-2 pb-0">
-          <p className="font-semibold">
+          <p className="font-semibold text-sky-900">
             {name.length > 100 ? name.slice(0, 100) + "..." : name}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-sky-700">
             {description.length > 60
               ? description.slice(0, 60) + "..."
               : description}
           </p>
           <div className="flex items-center">
-   
             {discountPercentage > 0 ? (
               <span className="text-[#f50514] text-sm flex-1">
                 {discountPercentage}% OFF
               </span>
             ) : (
-  
               <span className="flex-1"></span>
             )}
-            
+
             <span className="flex items-center text-sm gap-1 text-yellow-500">
               <Star className="w-4 h-4 fill-yellow-300" />
               <span>{rating}</span>
             </span>
           </div>
-          
+
           <div className="flex items-center py-2 gap-1">
-            <span className="font-medium">{priceFormat(finalSellingPrice)}</span> 
-            
+            <span className="font-medium text-sky-800">{priceFormat(finalSellingPrice)}</span>
+
             {discountPercentage > 0 && (
               <del className="text-gray-500 text-xs">
                 {priceFormat(price)} 
               </del>
             )}
           </div>
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+          <div className="flex items-center justify-between mt-2 text-xs text-sky-800">
             <span>Available: {availableQuota}</span>
             <span>Arrival: {new Date(arrivalDate).toLocaleDateString()}</span>
           </div>
         </CardContent>
         <CardFooter className="md:p-4 md:pt-0 p-2 pt-0">
           <Button
-            className="border w-full h-10 rounded-none"
+            className="translate-y-1 border w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white"
             onClick={addToCartHandle}
           >
             Add to Cart

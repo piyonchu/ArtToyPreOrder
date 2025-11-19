@@ -148,10 +148,10 @@ const Page = ({ params }: { params: { id: string } }) => {
   return (
     <>
       {artToy && artToy.images && artToy.name && artToy.description ? (
-        <div className="sm:flex block">
+        <div className="sm:flex block bg-slate-50">
           <ProductImgSlider images={artToy.images} />
           <div className="flex-1 p-4">
-            <h1 className="text-4xl ">{artToy.name}</h1>
+            <h1 className="text-3xl font-bold text-sky-900">{artToy.name}</h1>
 
             {/* -----RATING----- */}
             {artToy.rating && (
@@ -187,12 +187,19 @@ const Page = ({ params }: { params: { id: string } }) => {
                 })}
               </div>
             )}
+            {artToy.discountPercentage > 0 ? (
+              <span className="text-[#f50514] text-3xl flex-1 text-red-500">
+                {artToy.discountPercentage}% OFF
+              </span>
+            ) : (
+              <span className="flex-1"></span>
+            )}
 
             {/* -----PRICE----- */}
             <div className="flex gap-2 py-4 items-center">
-              <span className="text-3xl">{priceFormat(finalSellingPrice)}</span>
-              {artToy.price && (
-                <del className="text-gray-500 ">
+              <span className="text-2xl">{priceFormat(finalSellingPrice)}</span>
+              {artToy.discountPercentage > 0 && (
+                <del className="text-gray-500 text-xs">
                   {priceFormat(artToy.price)}
                 </del>
               )}
@@ -200,7 +207,7 @@ const Page = ({ params }: { params: { id: string } }) => {
 
             {/* Display the description of the art toy */}
             {artToy.description && (
-              <div className="mt-2 space-y-2 text-lg text-gray-700">
+              <div className="mt-2 space-y-2 text-lg text-sky-700">
                 {artToy.description.split("\n").map((line, index) => {
                   // 1. Remove extra whitespace from ends
                   const text = line.trim();
@@ -221,15 +228,13 @@ const Page = ({ params }: { params: { id: string } }) => {
                   return (
                     <div key={index} className="flex items-start">
                       {/* If it was "--", render a bullet point */}
-                      {isBullet && (
-                        <span className="mr-2 text-gray-400">•</span>
-                      )}
+                      {isBullet && <span className="mr-2 text-sky-600">•</span>}
 
                       <div>
                         {body ? (
                           // If we found a colon, bold the title
                           <>
-                            <span className="font-bold text-gray-900">
+                            <span className="font-bold text-sky-900">
                               {title}:
                             </span>
                             {body}
@@ -504,9 +509,9 @@ const Page = ({ params }: { params: { id: string } }) => {
       )}
 
       {/* -----ADD TO CART & BUY NOW----- */}
-      <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white border border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
+      <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
         <Button
-          className="rounded-none max-sm:flex-1 w-48"
+          className="bg-sky-500 hover:bg-sky-600 text-white max-sm:flex-1 w-48"
           size={"lg"}
           onClick={addCartHandle}
         >

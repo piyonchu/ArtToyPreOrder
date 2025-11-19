@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { SignInFormData, signInSchema } from "@/lib/validation/signIn";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAppDispatch } from "@/redux/hooks";
@@ -28,7 +28,8 @@ const SignIn = () => {
     resolver: zodResolver(signInSchema),
   });
 
-  const onSubmit: SubmitHandler<SignInFormData> = async (data) => {
+  // Directly use onSubmit without SubmitHandler
+  const onSubmit = async (data: SignInFormData) => {
     try {
       // Call login endpoint
       const res = await fetcher<{
@@ -64,7 +65,7 @@ const SignIn = () => {
         })
       );
 
-      console.log("loggin res", res);
+      console.log("login response", res);
 
       // Save token for later requests
       localStorage.setItem("token", res.token);

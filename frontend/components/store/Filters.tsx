@@ -3,6 +3,8 @@ import { Checkbox } from "../ui/checkbox";
 import { ITag } from "@/lib/interface"; // Adjust import based on your interface for types
 import { Slider } from "../ui/slider";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   setTags, // Adjust the action to set type instead of brand
   setOffer,
@@ -14,10 +16,12 @@ import clsx from "clsx";
 import useDeviceSize from "@/lib/useDeviceSize";
 import { Star, X } from "lucide-react";
 import { Toggle } from "../ui/toggle";
+import { useEffect, useState } from "react";
 
 const Filters = () => {
   const dispatch = useAppDispatch();
   const { width } = useDeviceSize();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const {
     openFilter,
@@ -26,6 +30,13 @@ const Filters = () => {
     offer,
     tags: tagsState, // Updated to reflect 'tags' instead of 'type'
   } = useAppSelector((state) => state.filter);
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+    if (role === "admin") {
+      setIsAdmin(true);
+    }
+  }, []);
 
   // Updated handle function (to handle multiple tags selection)
   const handleTags = (e: ChangeEvent<HTMLInputElement>) => {
@@ -45,12 +56,12 @@ const Filters = () => {
       <aside
         className={clsx(
           openFilter ? "max-md:translate-y-0" : "max-md:translate-y-[100%]",
-          "border-r py-2 px-6 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-[80%] max-md:overflow-y-scroll max-md:z-30 bg-white  transition-transform"
+          "shadow-2xl shadow-gray-900 py-2 px-6 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-[80%] max-md:overflow-y-scroll max-md:z-30 bg-sky-50  transition-transform"
         )}
       >
         {width < 768 && (
           <div className="flex items-center pb-4 pt-2">
-            <h2 className="flex-1 font-medium text-2xl">Sort and filter</h2>
+            <h2 className="flex-1 font-medium text-2xl text-sky-800">Sort and filter</h2>
             <button onClick={() => dispatch(setOpenFilter(false))}>
               <X strokeWidth={1.25} />
             </button>
@@ -59,7 +70,7 @@ const Filters = () => {
 
         {/* ------SORT FILTER------ */}
         <div className="mb-8">
-          <h3 className="font-medium mb-4">Sort</h3>
+          <h3 className="font-medium mb-4 text-sky-800">Sort</h3>
           <div>
             {sortBy.map((sortItem) => (
               <div className="flex items-center gap-4" key={sortItem.id}>
@@ -72,7 +83,10 @@ const Filters = () => {
                       setSort({ field: sortItem.field, order: e.target.value })
                     )
                   }
-                  checked={sort.order === sortItem.order}
+                  checked={
+                    sort.field === sortItem.field &&
+                    sort.order === sortItem.order
+                  }
                 />
                 <label htmlFor={sortItem.field + sortItem.order}>
                   {sortItem.label}
@@ -84,7 +98,7 @@ const Filters = () => {
 
         {/* ------TYPE FILTER (TOYS, FIGURINES, ART) ------ */}
         <div>
-          <h3 className="font-medium mb-4">Tags</h3>
+          <h3 className="font-medium mb-4 text-sky-800">Tags</h3>
           <div>
             {tags.map((tag) => (
               <div key={tag.value} className="flex items-center gap-4">
@@ -103,7 +117,7 @@ const Filters = () => {
 
         {/* ------RATING FILTER------ */}
         <div className="mt-8">
-          <h3 className="font-medium mb-4">Rating</h3>
+          <h3 className="font-medium mb-4 text-sky-800">Rating</h3>
           <div className="grid grid-cols-5 justify-items-center">
             {[1, 2, 3, 4, 5].map((btn) => (
               <button
@@ -112,12 +126,12 @@ const Filters = () => {
                 onClick={(e) => dispatch(setRating(e.currentTarget.value))}
                 className={clsx(
                   rating === btn.toString() ? "bg-black text-white" : "",
-                  "border hover:bg-black/80 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
+                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
                 )}
               >
                 {btn}
                 <Star
-                  className="text-orange-500"
+                  className="fill-yellow-400"
                   size={16}
                   strokeWidth={1.25}
                   absoluteStrokeWidth
@@ -129,7 +143,7 @@ const Filters = () => {
 
         {/* ------OFFER FILTER------ */}
         <div className="mt-8">
-          <h3 className="font-medium mb-4">Offer</h3>
+          <h3 className="font-medium mb-4 text-sky-800">Offer</h3>
           <div className="grid grid-cols-5 justify-items-center">
             {[10, 20, 30, 40, 50].map((offerBtn) => (
               <button
@@ -138,7 +152,7 @@ const Filters = () => {
                 onClick={(e) => dispatch(setOffer(e.currentTarget.value))}
                 className={clsx(
                   offer === offerBtn.toString() ? "bg-black text-white" : "",
-                  "border hover:bg-black/80 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
+                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
                 )}
               >
                 {offerBtn}%
@@ -147,12 +161,13 @@ const Filters = () => {
           </div>
         </div>
 
-        <div className="mt-8">
+        {/* <div className="mt-8">
           <h3 className="font-medium mb-4">Price Range</h3>
           <div>
             <Slider defaultValue={[50]} max={100} step={1} />
           </div>
-        </div>
+        </div> */}
+        
       </aside>
     </>
   );

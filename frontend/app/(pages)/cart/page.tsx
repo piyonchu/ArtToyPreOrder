@@ -268,7 +268,7 @@ const Page = () => {
                 className="rounded-none "
                 onClick={handleCheckout}
               >
-                Checkout
+                Preorder
               </Button>
             </div>
           )}

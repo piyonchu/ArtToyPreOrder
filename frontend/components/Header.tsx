@@ -42,9 +42,9 @@ const Header = () => {
 
   return (
     <>
-      <header className="border-b stick">
+      <header className="border-b stick bg-sky-200 ">
         <nav className="flex items-center gap-8 w-[95%] m-auto h-12">
-          <div className="font-medium text-lg">
+          <div className="font-bold text-lg text-sky-800">
             <Link href={"/"}>ArtToy Pre-Order</Link>
           </div>
 
@@ -75,7 +75,7 @@ const Header = () => {
                   {user && (
                     <Avatar className="max-md:hidden">
                       <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
-                      <AvatarFallback className="font-semibold text-lg uppercase">
+                      <AvatarFallback className="font-semibold text-lg uppercase text-sky-800">
                         {user?.name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -138,7 +138,7 @@ const Header = () => {
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <h3 className="capitalize text-xl font-medium">{user?.name}</h3>
+                <h3 className="capitalize text-xl font-medium text-sky-800">{user?.name}</h3>
               </div>
               <Button variant={"ghost"} className="justify-start px-0">
                 <Link href={"/orders"} onClick={() => setOpenMenu(false)}>
@@ -158,7 +158,7 @@ const Header = () => {
                 <div className="rounded-lg bg-gray-100 p-2 mr-2">
                   <User strokeWidth={1.25} size={20} />
                 </div>
-                <span className="text-sm">Sign In / Sign Up</span>
+                <span className="text-sm text-sky-800">Sign In / Sign Up</span>
               </div>
               <div>
                 <ChevronRight strokeWidth={1.25} />
@@ -170,7 +170,7 @@ const Header = () => {
             {links.map((elm) => (
               <Link
                 key={elm.id}
-                className="hover:bg-gray-100 py-2 px-1 font-medium"
+                className="hover:bg-gray-100 py-2 px-1 font-medium text-sky-800"
                 href={elm.path}
                 onClick={() => setOpenMenu(false)}
               >
