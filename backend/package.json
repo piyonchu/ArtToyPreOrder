@@ -5,8 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js",
-    "build": "echo \"No build step needed for backend\""
+    "start": "npx nodemon server.ts",
+    "build": "rimraf dist && tsc",
+    "dev": "npm run sync:db && cross-env NODE_ENV=development npm run start",
+    "prod": "npm run build && cross-env NODE_ENV=production node dist/index.js"
   },
   "author": "TNPTW",
   "license": "ISC",
@@ -32,6 +34,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "rimraf": "^6.0.1"
   }
 }
