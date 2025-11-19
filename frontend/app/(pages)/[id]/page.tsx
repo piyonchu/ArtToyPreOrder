@@ -8,11 +8,11 @@ import { setArtToy, setArtToyLoading } from "../../../redux/slice/productSlice";
 import { useRouter } from "next/navigation";
 
 import ProductImgSlider from "@/components/product/ProductImgSlider";
-import useFetchProductID from "@/lib/request/useFetchProductID";
 import { priceFormat } from "@/lib/utils";
 import { addToCart, setTotal } from "@/redux/slice/cartSlice";
 import { Star, StarHalf } from "lucide-react";
 import React from "react";
+
 const Page = ({ params }: { params: { id: string } }) => {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -97,6 +97,42 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
   };
 
+  // Handle Delete Product
+  const handleDelete = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this product? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Product deleted successfully!");
+        router.push("/store"); // Redirect to store/home after delete
+      } else {
+        alert(data.message || "Failed to delete product");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while deleting the product.");
+    }
+  };
+
   // Handle input change for editable fields
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -162,9 +198,9 @@ const Page = ({ params }: { params: { id: string } }) => {
                 {Array.from({ length: 5 }, (_, index) => {
                   let num = index + 0.5;
                   return (
-                    <>
+                    <React.Fragment key={index}>
                       {artToy.rating && (
-                        <span key={index}>
+                        <span>
                           {artToy.rating >= index + 1 ? (
                             <Star
                               className="fill-yellow-300"
@@ -182,7 +218,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                           )}
                         </span>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </div>
@@ -209,30 +245,18 @@ const Page = ({ params }: { params: { id: string } }) => {
             {artToy.description && (
               <div className="mt-2 space-y-2 text-lg text-sky-700">
                 {artToy.description.split("\n").map((line, index) => {
-                  // 1. Remove extra whitespace from ends
                   const text = line.trim();
-
-                  // Skip empty lines
                   if (!text) return null;
-
-                  // 2. Check if line starts with "--"
                   const isBullet = text.startsWith("--");
-
-                  // Remove the "--" characters from the text if present
                   const cleanText = isBullet ? text.substring(2).trim() : text;
-
-                  // 3. Split by the first colon ":" to separate Title and Body
                   const [title, ...rest] = cleanText.split(":");
-                  const body = rest.join(":"); // Rejoin just in case the body has colons too
+                  const body = rest.join(":");
 
                   return (
                     <div key={index} className="flex items-start">
-                      {/* If it was "--", render a bullet point */}
                       {isBullet && <span className="mr-2 text-sky-600">•</span>}
-
                       <div>
                         {body ? (
-                          // If we found a colon, bold the title
                           <>
                             <span className="font-bold text-sky-900">
                               {title}:
@@ -240,7 +264,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                             {body}
                           </>
                         ) : (
-                          // If no colon, just render the text
                           cleanText
                         )}
                       </div>
@@ -252,7 +275,6 @@ const Page = ({ params }: { params: { id: string } }) => {
 
             {/* More product details */}
             <div className="mt-4">
-              {/* <p><strong>SKU:</strong> {artToy.sku}</p> */}
               <p>
                 <strong>Arrival Date:</strong>{" "}
                 {new Date(artToy.arrivalDate).toLocaleDateString()}
@@ -262,9 +284,10 @@ const Page = ({ params }: { params: { id: string } }) => {
               </p>
             </div>
 
-            {/* Admin-only controls: Edit */}
+            {/* Admin-only controls: Edit & Delete */}
             {isAdmin && (
               <div className="mt-6 flex gap-4">
+                {/* EDIT BUTTON */}
                 <Button
                   className="w-32"
                   onClick={() => setIsEditing(!isEditing)} // Toggle editing mode
@@ -272,7 +295,18 @@ const Page = ({ params }: { params: { id: string } }) => {
                   {isEditing ? "Cancel Edit" : "Edit"}
                 </Button>
 
-                {/* Only show the "Save" button if in editing mode */}
+                {/* DELETE BUTTON (Visible when not editing) */}
+                {!isEditing && (
+                  <Button
+                    className="w-32"
+                    variant="destructive"
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </Button>
+                )}
+
+                {/* SAVE BUTTON (Only show if in editing mode) */}
                 {isEditing && (
                   <Button className="w-32" onClick={handleSubmit}>
                     Save Changes
@@ -517,13 +551,6 @@ const Page = ({ params }: { params: { id: string } }) => {
         >
           Add to Cart
         </Button>
-        {/* <Button
-          variant={"destructive"}
-          className="rounded-none max-sm:flex-1 w-48"
-          size={"lg"}
-        >
-          Buy Now
-        </Button> */}
       </div>
     </>
   );

@@ -13,7 +13,7 @@ import Link from "next/link";
 
 const Slider = () => {
   return (
-    <section className="translate-y-4 shadow-2xl border-4 rounded-2xl border-sky-300 relative max-w-[83rem] mx-auto">
+    <section className="translate-y-4 shadow-2xl border-4 rounded-2xl border-blue-300 relative max-w-[83rem] mx-auto">
       <Swiper
         slidesPerView={1}
         navigation={true}

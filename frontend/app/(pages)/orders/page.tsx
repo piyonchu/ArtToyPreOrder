@@ -138,7 +138,7 @@ const Page = () => {
 
   return (
     <main className="mx-auto my-4 max-w-6xl px-2 md:my-6 md:px-0">
-      <h2 className="text-3xl font-bold">Order Details</h2>
+      <h2 className="text-3xl font-bold text-sky-900">Order Details</h2>
       <div className="mt-3 text-sm">
         Check the status of recent and old orders & discover more products
       </div>
@@ -164,19 +164,19 @@ const Page = () => {
 
                       <div className="ml-5 flex flex-col justify-between">
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-bold text-sky-900">
                             {order.artToy.name}
                           </p>
                         </div>
 
-                        <p className="mt-4 text-sm font-medium text-gray-500">
+                        <p className="mt-4 text-sm font-medium text-sky-700">
                           x {order.orderAmount}
                         </p>
                       </div>
                     </div>
 
                     <div className="ml-auto flex flex-col items-end justify-between">
-                      <p className="text-right text-sm font-bold text-gray-900">
+                      <p className="text-right text-sm font-bold text-sky-900">
                         {priceFormat(order.artToy.price * order.orderAmount)}{" "}
                         {/* Display price */}
                       </p>
@@ -234,7 +234,7 @@ const Page = () => {
 
                   {/* Display user details if the logged-in user is an admin */}
                   {userRole === "admin" && (
-                    <div className="mt-4 text-sm text-gray-500">
+                    <div className="mt-4 text-sm text-sky-700">
                       <h4 className="font-bold">User Information</h4>
                       <p><strong>Name:</strong> {order.user?.name}</p>
                       <p><strong>Email:</strong> {order.user?.email}</p>

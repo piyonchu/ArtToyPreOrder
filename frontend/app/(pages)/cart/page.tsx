@@ -16,6 +16,7 @@ import {
   handleSelectCart,
   handleSelectAll,
   setTotal,
+  clearCart
 } from "../../../redux/slice/cartSlice";
 import useDeviceSize from "../../../lib/useDeviceSize";
 import axios from "axios";
@@ -96,7 +97,8 @@ const Page = () => {
               })
             );
 
-            localStorage.removeItem("myCart");
+            //localStorage.removeItem("myCart");
+            dispatch(clearCart());
 
     
             router.push("/orders"); 
@@ -183,9 +185,9 @@ const Page = () => {
                 </figure>
               </div>
               <div className="flex-1 flex sm:items-center max-sm:justify-between max-sm:flex-col">
-                <h2 className="md:text-xl font-medium flex-1">{elm.title}</h2>
+                <h2 className="md:text-xl font-medium flex-1 text-sky-900">{elm.title}</h2>
                 <div className="flex-1 flex items-center">
-                  <p className="md::text-lg flex-1">{priceFormat(elm.price)}</p>
+                  <p className="md::text-lg flex-1 text-sky-900">{priceFormat(elm.price)}</p>
                   <div className="flex-1 flex items-center md:justify-center justify-end">
                     <button
                       className="w-6 h-6 sm:w-8 sm:h-8 border flex items-center justify-center hover:bg-gray-100 disabled:cursor-not-allowed "
@@ -227,7 +229,7 @@ const Page = () => {
           ))
         ) : (
           <div className="flex items-center justify-center pt-8">
-            <p className="text-4xl font-medium">Your cart is empty!</p>
+            <p className="text-4xl font-medium text-sky-900">Your cart is empty!</p>
           </div>
         )}
       </section>
@@ -261,11 +263,12 @@ const Page = () => {
               </Button>
             </div>
           ) : (
-            <div className="fixed bottom-0 inset-x-0 px-8 h-[72px] bg-white flex gap-8 items-center justify-end">
-              <p className="font-medium text-xl">{priceFormat(totalPrice)}</p>
+            <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
+              <p className="font-medium text-xl text-sky-900">{priceFormat(totalPrice)}</p>
               <Button
+
                 size={"lg"}
-                className="rounded-none "
+                className="bg-sky-500 hover:bg-sky-600 text-white max-sm:flex-1 w-48"
                 onClick={handleCheckout}
               >
                 Preorder
