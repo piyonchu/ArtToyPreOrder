@@ -25,9 +25,7 @@ const Page = () => {
         </Button>
         <figure className="h-full">
           <Image
-            src={
-              "https://res.cloudinary.com/dayo1mpv0/image/upload/v1690116593/ecom/cart_rgb3gl.jpg"
-            }
+            src={"https://4kwallpapers.com/images/walls/thumbs_3t/19189.jpeg"}
             width={500}
             height={500}
             alt="sign up"
@@ -37,10 +35,12 @@ const Page = () => {
       </section>
       <section className="grid justify-center content-center">
         <div className="space-y-1">
-          <h2 className="text-2xl font-medium">Create an account</h2>
-          <p className="py-2">
-            Already have an account{" "}
-            <Link href={"/signin"} className="underline">
+          <h2 className="text-2xl font-medium text-sky-900">
+            Create an account
+          </h2>
+          <p className="py-2 text-sky-900">
+            Already have an account?{" "}
+            <Link href={"/signin"} className="translate-y-1 underline">
               Sign in
             </Link>{" "}
             here.

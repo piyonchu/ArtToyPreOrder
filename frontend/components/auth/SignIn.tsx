@@ -113,7 +113,7 @@ const SignIn = () => {
         </div>
         <div className="mt-4">
           <Button
-            className="w-full"
+            className="w-full bg-sky-500 hover:bg-sky-600 text-white"
             type="submit"
             disabled={!isFormError || isSubmitting || !isDirty}
           >
