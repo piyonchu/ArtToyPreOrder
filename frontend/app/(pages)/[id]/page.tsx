@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setArtToy, setArtToyLoading } from "../../../redux/slice/productSlice";
 import { useRouter } from "next/navigation";
-
+import useFetchProductID from "@/lib/request/useFetchProductID";
 import ProductImgSlider from "@/components/product/ProductImgSlider";
 import { priceFormat } from "@/lib/utils";
 import { addToCart, setTotal } from "@/redux/slice/cartSlice";
@@ -14,6 +14,7 @@ import { Star, StarHalf } from "lucide-react";
 import React from "react";
 
 const Page = ({ params }: { params: { id: string } }) => {
+  useFetchProductID({ id: params.id });
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { artToy, artToyLoading } = useAppSelector((state) => state.product);

@@ -58,9 +58,6 @@ const Header = () => {
           </ul>
 
           <div className="flex items-center gap-4">
-            <button title="Search">
-              <Search strokeWidth={1.25} />
-            </button>
             <Link href={"/cart"} title="Cart" className="relative">
               <ShoppingBag strokeWidth={1.25} />
               {totalQuantity > 0 && (

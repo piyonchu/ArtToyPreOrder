@@ -62,8 +62,7 @@ const ArtToySchema = new mongoose.Schema({
   timestamps: true,
 });
 
-ArtToySchema.index({ tags: 'text' });
-
+ArtToySchema.index({ name: "text", tags: 'text' });
 
 ArtToySchema.virtual('discountedPrice').get(function() {
   if (this.discountPercentage > 0) {

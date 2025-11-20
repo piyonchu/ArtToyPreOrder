@@ -131,7 +131,7 @@ const SignUp = () => {
           )}
         </div>
 
-        <div className="grid gap-2">
+        {/* <div className="grid gap-2">
           <Label htmlFor="role">Role</Label>
           <select
             {...register("role")}
@@ -144,7 +144,7 @@ const SignUp = () => {
           {errors.role && (
             <p className="text-sm text-red-500">{errors.role.message}</p>
           )}
-        </div>
+        </div> */}
 
         <div className="mt-4">
           <Button

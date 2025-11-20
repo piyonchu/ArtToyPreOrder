@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 // Define the initial state type for the filters
 interface InitialState {
@@ -12,6 +12,7 @@ interface InitialState {
   tags: string[];
   arrivalDate: string;
   availableQuota: string;
+  searchQuery: string; // <--- Added this
 }
 
 const initialState: InitialState = {
@@ -24,17 +25,22 @@ const initialState: InitialState = {
   rating: "",
   price: "",
   offer: "",
-  priceRange: [0, 500], // default price range
+  priceRange: [0, 500],
   tags: [],
   arrivalDate: "",
   availableQuota: "",
+  searchQuery: "", // <--- Initialize this
 };
 
 const filterSlice = createSlice({
   name: "filter",
   initialState,
   reducers: {
-    // Toggle brand selection
+    // Set the search query
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
+
     setBrand: (state, action) => {
       let brand = action.payload;
       let index = state.brand.indexOf(brand);
@@ -46,7 +52,6 @@ const filterSlice = createSlice({
       }
     },
 
-    // Toggle filter visibility
     setOpenFilter: (state, action) => {
       state.openFilter = action.payload;
       state.openFilter === true
@@ -54,22 +59,18 @@ const filterSlice = createSlice({
         : (document.body.style.overflow = "visible");
     },
 
-    // Set sorting preferences
     setSort: (state, action) => {
       state.sort = action.payload;
     },
 
-    // Set or reset rating filter
     setRating: (state, action) => {
       state.rating = action.payload === state.rating ? "" : action.payload;
     },
 
-    // Set or reset offer filter
     setOffer: (state, action) => {
       state.offer = action.payload === state.offer ? "" : action.payload;
     },
 
-    // Set the price range filter
     setPriceRange: (state, action) => {
       state.priceRange = action.payload;
     },
@@ -78,24 +79,20 @@ const filterSlice = createSlice({
       state.price = action.payload;
     },
 
-    // Set the tags filter
     setTags: (state, action) => {
       state.tags = action.payload;
     },
 
-    // Set the arrival date filter
     setArrivalDate: (state, action) => {
       state.arrivalDate = action.payload;
     },
 
-    // Set the available quota filter
     setAvailableQuota: (state, action) => {
       state.availableQuota = action.payload;
     },
   },
 });
 
-// Export the actions from the slice
 export const {
   setBrand,
   setOpenFilter,
@@ -107,6 +104,7 @@ export const {
   setTags,
   setArrivalDate,
   setAvailableQuota,
+  setSearchQuery, // <--- Export this
 } = filterSlice.actions;
 
 export default filterSlice.reducer;

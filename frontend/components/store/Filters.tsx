@@ -1,22 +1,16 @@
-import React, { ChangeEvent } from "react";
-import { Checkbox } from "../ui/checkbox";
-import { ITag } from "@/lib/interface"; // Adjust import based on your interface for types
-import { Slider } from "../ui/slider";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
-  setTags, // Adjust the action to set type instead of brand
+  setTags,
   setOffer,
   setOpenFilter,
   setRating,
   setSort,
+  setSearchQuery, // Import the new action
 } from "@/redux/slice/filterSlice";
 import clsx from "clsx";
 import useDeviceSize from "@/lib/useDeviceSize";
-import { Star, X } from "lucide-react";
-import { Toggle } from "../ui/toggle";
-import { useEffect, useState } from "react";
+import { Star, X, Search } from "lucide-react";
 
 const Filters = () => {
   const dispatch = useAppDispatch();
@@ -28,7 +22,8 @@ const Filters = () => {
     sort,
     rating,
     offer,
-    tags: tagsState, // Updated to reflect 'tags' instead of 'type'
+    tags: tagsState,
+    searchQuery, // Get search state
   } = useAppSelector((state) => state.filter);
 
   useEffect(() => {
@@ -38,17 +33,21 @@ const Filters = () => {
     }
   }, []);
 
-  // Updated handle function (to handle multiple tags selection)
+  // Handle tag selection
   const handleTags = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const isChecked = e.target.checked;
 
-    // Dispatch an action to update the tags list: either add or remove a tag
     if (isChecked) {
-      dispatch(setTags([...tagsState, value])); // Add selected tag to the state
+      dispatch(setTags([...tagsState, value]));
     } else {
-      dispatch(setTags(tagsState.filter((tag) => tag !== value))); // Remove unselected tag
+      dispatch(setTags(tagsState.filter((tag) => tag !== value)));
     }
+  };
+
+  // Handle search button click
+  const handleSearchClick = () => {
+    dispatch(setSearchQuery(searchQuery)); // Dispatch the search query when search icon is clicked
   };
 
   return (
@@ -56,19 +55,41 @@ const Filters = () => {
       <aside
         className={clsx(
           openFilter ? "max-md:translate-y-0" : "max-md:translate-y-[100%]",
-          "shadow-2xl shadow-gray-900 py-2 px-6 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-[80%] max-md:overflow-y-scroll max-md:z-30 bg-sky-50  transition-transform"
+          "shadow-2xl shadow-gray-900 py-2 px-6 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:h-[80%] max-md:overflow-y-scroll max-md:z-30 bg-sky-50 transition-transform"
         )}
       >
+        {/* Mobile Header */}
         {width < 768 && (
           <div className="flex items-center pb-4 pt-2">
-            <h2 className="flex-1 font-medium text-2xl text-sky-800">Sort and filter</h2>
+            <h2 className="flex-1 font-medium text-2xl text-sky-800">
+              Sort and filter
+            </h2>
             <button onClick={() => dispatch(setOpenFilter(false))}>
               <X strokeWidth={1.25} />
             </button>
           </div>
         )}
 
-        {/* ------SORT FILTER------ */}
+        {/* ------ SEARCH BAR ------ */}
+        <div className="mb-8 mt-2">
+          <h3 className="font-medium mb-2 text-sky-800">Search</h3>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-sky-800/50 cursor-pointer"
+              size={18}
+              onClick={handleSearchClick} // Trigger search on click of the Search icon
+            />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => dispatch(setSearchQuery(e.target.value))}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-sky-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-800/20 focus:border-sky-800 transition-all text-sm"
+            />
+          </div>
+        </div>
+
+        {/* ------ SORT FILTER ------ */}
         <div className="mb-8">
           <h3 className="font-medium mb-4 text-sky-800">Sort</h3>
           <div>
@@ -96,7 +117,7 @@ const Filters = () => {
           </div>
         </div>
 
-        {/* ------TYPE FILTER (TOYS, FIGURINES, ART) ------ */}
+        {/* ------ TYPE FILTER (TAGS) ------ */}
         <div>
           <h3 className="font-medium mb-4 text-sky-800">Tags</h3>
           <div>
@@ -106,8 +127,8 @@ const Filters = () => {
                   type="checkbox"
                   id={tag.value}
                   value={tag.value}
-                  onChange={handleTags} // Call 'handleTags' for selection logic
-                  checked={tagsState.includes(tag.value)} // Check if the tag is selected
+                  onChange={handleTags}
+                  checked={tagsState.includes(tag.value)}
                 />
                 <label htmlFor={tag.value}>{tag.label}</label>
               </div>
@@ -115,7 +136,7 @@ const Filters = () => {
           </div>
         </div>
 
-        {/* ------RATING FILTER------ */}
+        {/* ------ RATING FILTER ------ */}
         <div className="mt-8">
           <h3 className="font-medium mb-4 text-sky-800">Rating</h3>
           <div className="grid grid-cols-5 justify-items-center">
@@ -126,7 +147,7 @@ const Filters = () => {
                 onClick={(e) => dispatch(setRating(e.currentTarget.value))}
                 className={clsx(
                   rating === btn.toString() ? "bg-black text-white" : "",
-                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
+                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md w-10 h-10 flex items-center justify-center"
                 )}
               >
                 {btn}
@@ -141,7 +162,7 @@ const Filters = () => {
           </div>
         </div>
 
-        {/* ------OFFER FILTER------ */}
+        {/* ------ OFFER FILTER ------ */}
         <div className="mt-8">
           <h3 className="font-medium mb-4 text-sky-800">Offer</h3>
           <div className="grid grid-cols-5 justify-items-center">
@@ -152,7 +173,7 @@ const Filters = () => {
                 onClick={(e) => dispatch(setOffer(e.currentTarget.value))}
                 className={clsx(
                   offer === offerBtn.toString() ? "bg-black text-white" : "",
-                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md  w-10 h-10 flex items-center justify-center"
+                  "border-2 hover:bg-sky-800 border-sky-800 hover:text-white rounded-md w-10 h-10 flex items-center justify-center"
                 )}
               >
                 {offerBtn}%
@@ -160,14 +181,6 @@ const Filters = () => {
             ))}
           </div>
         </div>
-
-        {/* <div className="mt-8">
-          <h3 className="font-medium mb-4">Price Range</h3>
-          <div>
-            <Slider defaultValue={[50]} max={100} step={1} />
-          </div>
-        </div> */}
-        
       </aside>
     </>
   );

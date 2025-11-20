@@ -12,13 +12,17 @@ interface UseFetchArtToysProps {
   limit?: number;
 }
 
-const fetchArtToys = async (params: Record<string, any>, limit = 12): Promise<IArtToy[]> => {
+const fetchArtToys = async (
+  params: Record<string, any>,
+  limit = 12
+): Promise<IArtToy[]> => {
   const qs = new URLSearchParams();
 
   qs.append("limit", limit.toString());
 
   // Add params to URL
   Object.entries(params).forEach(([key, value]) => {
+    // Ensure empty strings don't get sent as params
     if (value !== "" && value !== undefined && value !== null) {
       qs.append(key, value);
     }
@@ -36,9 +40,17 @@ const fetchArtToys = async (params: Record<string, any>, limit = 12): Promise<IA
 const useFetchArtToys = ({ limit = 12 }: UseFetchArtToysProps) => {
   const dispatch = useAppDispatch();
 
-  // Grab filters from Redux
-  const { sort, rating, offer, tags, price, arrivalDate, availableQuota } =
-    useAppSelector((state) => state.filter);
+  // 1. Get searchQuery from Redux state
+  const {
+    sort,
+    rating,
+    offer,
+    tags,
+    price,
+    arrivalDate,
+    availableQuota,
+    searchQuery, // <--- ADDED THIS
+  } = useAppSelector((state) => state.filter);
 
   // Build dynamic params
   const params = {
@@ -50,10 +62,11 @@ const useFetchArtToys = ({ limit = 12 }: UseFetchArtToysProps) => {
     arrivalDate,
     availableQuota,
     tags: tags.length ? tags.join(",") : "",
+    search: searchQuery, // <--- ADDED THIS (assumes backend uses 'search')
   };
 
   const { data, isLoading } = useQuery(
-    ["arttoys", params], // react-query refetches when filters change
+    ["arttoys", params], // react-query refetches when params change
     () => fetchArtToys(params, limit),
     {
       refetchOnWindowFocus: false,

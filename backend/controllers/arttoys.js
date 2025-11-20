@@ -1,25 +1,9 @@
-const ArtToy = require('../models/ArtToy');
-const dayjs = require('dayjs');
+const ArtToy = require("../models/ArtToy");
+const dayjs = require("dayjs");
 
 // @desc    Get all art toys
 // @route   GET /api/v1/arttoys
 // @access  Public
-// exports.getArtToys = async (req, res) => {
-//   try {
-//     const artToys = await ArtToy.find();
-//     res.json({
-//       success: true,
-//       count: artToys.length,
-//       data: artToys
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Server Error'
-//     });
-//   }
-// };
 exports.getArtToys = async (req, res) => {
   const {
     rating,
@@ -31,57 +15,90 @@ exports.getArtToys = async (req, res) => {
     tags,
     sortField,
     sortOrder,
+    search,
   } = req.query;
 
-  const filters = {};
-
-  if (rating) {
-    filters.rating = { $gte: Number(rating) };
-  }
-
-  if (discountPercentage) {
-    filters.discountPercentage = { $gte: Number(discountPercentage) };
-  }
-
-  if (arrivalDate) {
-    const arrivalDateObj = new Date(arrivalDate);
-    filters.arrivalDate = { $gte: arrivalDateObj };
-  }
-
-  if (availableQuota) {
-    filters.availableQuota = { $gte: Number(availableQuota) };
-  }
-
-  if (createdAt) {
-    const createdAtObj = new Date(createdAt);
-    filters.createdAt = { $gte: createdAtObj };
-  }
-
-  if (price) {
-    filters.price = { $lte: Number(price) };
-  }
-
-  if (tags) {
-    const tagArray = tags.split(",");
-    filters.tags = { $in: tagArray };
-  }
-
   try {
-    let query = ArtToy.find(filters);
+    const pipeline = [];
 
-    // --- APPLY SORTING HERE ---
-    if (sortField && sortOrder) {
-      query = query.sort({
-        [sortField]: sortOrder === "asc" ? 1 : -1,
+    // --- 1. SEARCH STAGE (Must be first) ---
+    if (search) {
+      pipeline.push({
+        $search: {
+          index: "artToySearchIndex", // <--- UPDATED: Matches your actual Index Name
+          compound: {
+            should: [
+              {
+                text: {
+                  query: search,
+                  path: "name",
+                  score: { boost: { value: 3 } }, // Boost matches in Name
+                  fuzzy: {
+                    maxEdits: 1, // Allows 1 typo (e.g. "Hutao" -> "Hu Tao")
+                    prefixLength: 2, // First 2 letters must match
+                  },
+                },
+              },
+              {
+                text: {
+                  query: search,
+                  path: "tags",
+                  fuzzy: {
+                    maxEdits: 1,
+                    prefixLength: 2,
+                  },
+                },
+              },
+            ],
+            minimumShouldMatch: 1, // At least one condition must allow the match
+          },
+        },
       });
     }
 
-    const artToys = await query;
+    // --- 2. FILTER STAGE (Standard Filters) ---
+    const matchStage = {};
+
+    if (rating) matchStage.rating = { $gte: Number(rating) };
+    if (discountPercentage) matchStage.discountPercentage = { $gte: Number(discountPercentage) };
+    if (availableQuota) matchStage.availableQuota = { $gte: Number(availableQuota) };
+    if (price) matchStage.price = { $lte: Number(price) };
+
+    if (arrivalDate) {
+      matchStage.arrivalDate = { $gte: new Date(arrivalDate) };
+    }
+    if (createdAt) {
+      matchStage.createdAt = { $gte: new Date(createdAt) };
+    }
+    if (tags) {
+      const tagArray = tags.split(",");
+      matchStage.tags = { $in: tagArray };
+    }
+
+    // Add match stage only if filters exist
+    if (Object.keys(matchStage).length > 0) {
+      pipeline.push({ $match: matchStage });
+    }
+
+    // --- 3. SORT STAGE ---
+    if (sortField && sortOrder) {
+      const sortDirection = sortOrder === "asc" ? 1 : -1;
+      pipeline.push({ $sort: { [sortField]: sortDirection } });
+    } else if (search) {
+      // If searching without specific sort, showing "Search Score" is helpful for debugging
+      // pipeline.push({ $addFields: { score: { $meta: "searchScore" } } });
+    }
+
+    // --- 4. EXECUTE ---
+    // Important: Use aggregate(), not find()
+    const artToys = await ArtToy.aggregate(pipeline);
 
     if (artToys.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No art toys found with the given filters",
+      return res.status(200).json({ // Return 200 even if empty, easier for frontend
+        success: true,
+        count: 0,
+        data: [],
+        message: "No art toys found",
       });
     }
 
@@ -90,15 +107,16 @@ exports.getArtToys = async (req, res) => {
       count: artToys.length,
       data: artToys,
     });
+
   } catch (error) {
-    console.error(error);
+    console.error("Search Error:", error);
     res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
     });
   }
 };
-
 
 // @desc    Get single art toy
 // @route   GET /api/v1/arttoys/:id
@@ -109,23 +127,23 @@ exports.getArtToy = async (req, res) => {
     if (!artToy) {
       return res.status(404).json({
         success: false,
-        message: 'Art Toy not found'
+        message: "Art Toy not found",
       });
     }
     res.json({
       success: true,
-      data: artToy
+      data: artToy,
     });
   } catch (error) {
-    if (error.kind === 'ObjectId') {
+    if (error.kind === "ObjectId") {
       return res.status(404).json({
         success: false,
-        message: 'Art Toy not found - Invalid ID'
+        message: "Art Toy not found - Invalid ID",
       });
     }
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
@@ -134,19 +152,30 @@ exports.getArtToy = async (req, res) => {
 // @route   POST /api/v1/arttoys
 // @access  Admin
 exports.createArtToy = async (req, res) => {
-  const { sku, name, description, arrivalDate, availableQuota, posterPicture, tags, discountPercentage, price,images } = req.body;
+  const {
+    sku,
+    name,
+    description,
+    arrivalDate,
+    availableQuota,
+    posterPicture,
+    tags,
+    discountPercentage,
+    price,
+    images,
+  } = req.body;
 
   // Validate arrival date
-  if (dayjs(arrivalDate).isBefore(dayjs(), 'day')) {
+  if (dayjs(arrivalDate).isBefore(dayjs(), "day")) {
     return res.status(400).json({
       success: false,
-      message: 'Arrival date cannot be earlier than current date'
+      message: "Arrival date cannot be earlier than current date",
     });
   }
 
   // Create new art toy document
   try {
-    const artToy = await ArtToy.create({ 
+    const artToy = await ArtToy.create({
       sku,
       name,
       description,
@@ -156,18 +185,18 @@ exports.createArtToy = async (req, res) => {
       tags,
       discountPercentage,
       price,
-      images
+      images,
     });
 
     res.status(201).json({
       success: true,
-      data: artToy
+      data: artToy,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
@@ -179,37 +208,36 @@ exports.updateArtToy = async (req, res) => {
   const { arrivalDate, tags, discountPercentage, price } = req.body;
 
   // Validate arrival date if it's being updated
-  if (arrivalDate && dayjs(arrivalDate).isBefore(dayjs(), 'day')) {
+  if (arrivalDate && dayjs(arrivalDate).isBefore(dayjs(), "day")) {
     return res.status(400).json({
       success: false,
-      message: 'Arrival date cannot be earlier than current date'
+      message: "Arrival date cannot be earlier than current date",
     });
   }
 
   // Update the art toy document
   try {
-    const artToy = await ArtToy.findByIdAndUpdate(
-      req.params.id, 
-      req.body, 
-      { new: true, runValidators: true }
-    );
+    const artToy = await ArtToy.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!artToy) {
       return res.status(404).json({
         success: false,
-        message: 'Art Toy not found'
+        message: "Art Toy not found",
       });
     }
 
     res.json({
       success: true,
-      data: artToy
+      data: artToy,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
@@ -220,23 +248,23 @@ exports.updateArtToy = async (req, res) => {
 exports.deleteArtToy = async (req, res) => {
   try {
     const artToy = await ArtToy.findByIdAndDelete(req.params.id);
-    
+
     if (!artToy) {
       return res.status(404).json({
         success: false,
-        message: 'Art Toy not found'
+        message: "Art Toy not found",
       });
     }
 
     res.json({
       success: true,
-      message: 'Art Toy deleted'
+      message: "Art Toy deleted",
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
@@ -250,34 +278,34 @@ exports.searchArtToysByTags = async (req, res) => {
   if (!tags) {
     return res.status(400).json({
       success: false,
-      message: 'Please provide tags to search for'
+      message: "Please provide tags to search for",
     });
   }
 
-  const tagArray = tags.split(','); // Convert the comma-separated string into an array of tags
+  const tagArray = tags.split(","); // Convert the comma-separated string into an array of tags
 
   try {
     const artToys = await ArtToy.find({
-      tags: { $in: tagArray }
+      tags: { $in: tagArray },
     });
 
     if (artToys.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'No art toys found with the given tags'
+        message: "No art toys found with the given tags",
       });
     }
 
     res.json({
       success: true,
       count: artToys.length,
-      data: artToys
+      data: artToys,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error",
     });
   }
 };
