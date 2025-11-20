@@ -9,7 +9,8 @@ const useFetchProductID = ({ id }: { id: string }) => {
 
   const { data, isLoading } = useQuery(["product", id], {
     queryFn: async () => {
-      const { data } = await axios.get(`/api/products/${id}`);
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/arttoys/${id}`);
+      console.log("fetch id toy", data);
       return data;
     },
   });
