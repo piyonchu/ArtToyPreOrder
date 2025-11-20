@@ -28,7 +28,7 @@ const Slider = () => {
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={slide.id} className="relative">
-            <Link href={`/${slide.id}`}>
+            <Link href={`/product?id=${slide.id}`}>
               <figure className="h-full">
                 <Image
                   src={slide.img}

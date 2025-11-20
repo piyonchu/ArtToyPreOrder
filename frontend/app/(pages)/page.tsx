@@ -11,7 +11,7 @@ export default function Home() {
       <section className="grid grid-cols-1 md:grid-cols-2 gap-3 my-8 w-[90vw] mx-auto rounded-2xl">
         {homeProduct.map((item) => (
           <Link
-            href={`/${item.id}`}
+            href={`/product?id=${item.id}`}
             className="shadow-lg hover:shadow-xl bg-sky-50 rounded-lg overflow-hidden flex flex-col md:flex-row border-4 rounded-2xl border-blue-300"
             key={item.id}
           >
