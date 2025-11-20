@@ -6,25 +6,21 @@ import { Button } from "../../../components/ui/button";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { setArtToy, setArtToyLoading } from "../../../redux/slice/productSlice";
 import { useRouter } from "next/navigation";
-import useFetchProductID from "@/lib/request/useFetchProductID";
 import ProductImgSlider from "@/components/product/ProductImgSlider";
 import { priceFormat } from "@/lib/utils";
 import { addToCart, setTotal } from "@/redux/slice/cartSlice";
 import { Star, StarHalf } from "lucide-react";
 import React from "react";
 
-export const dynamic = 'force-dynamic';
-
 const Page = ({ params }: { params: { id: string } }) => {
-  useFetchProductID({ id: params.id });
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { artToy, artToyLoading } = useAppSelector((state) => state.product);
-  const [isAdmin, setIsAdmin] = useState(false); // Track if the user is admin
-  const [isEditing, setIsEditing] = useState(false); // Track if we are in edit mode
-  const [updatedToy, setUpdatedToy] = useState(artToy || {}); // Form state for editing
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedToy, setUpdatedToy] = useState(artToy || {});
+  const [fetchError, setFetchError] = useState(false);
 
-  // Check if the user is an admin (this could come from user authentication info)
   useEffect(() => {
     const role = localStorage.getItem("role");
     if (role === "admin") {
@@ -32,32 +28,53 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
   }, []);
 
-  // Fetch the art toy data when the page loads
   useEffect(() => {
     const fetchArtToy = async () => {
       dispatch(setArtToyLoading(true));
+      setFetchError(false);
 
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`
-        );
-        const result = await response.json();
+        // USE YOUR INTERNAL API ROUTE INSTEAD
+        const url = `/api/products/${params.id}`;
+        console.log('Fetching from internal API:', url);
+        
+        const response = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: 'no-store',
+        });
 
-        if (response.ok && result.success && result.data) {
-          dispatch(setArtToy(result.data)); // Update Redux state with the actual art toy data
-          setUpdatedToy(result.data); // Initialize form fields with current values
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Fetched result:', result);
+
+        if (result.success && result.data) {
+          dispatch(setArtToy(result.data));
+          setUpdatedToy(result.data);
+        } else if (result.data) {
+          // Handle case where API doesn't return success flag
+          dispatch(setArtToy(result.data));
+          setUpdatedToy(result.data);
+        } else {
+          setFetchError(true);
         }
       } catch (error) {
-        console.error("Error fetching ArtToy", error);
+        console.error("Error fetching ArtToy:", error);
+        setFetchError(true);
       } finally {
-        dispatch(setArtToyLoading(false)); // Set loading state to false after fetching
+        dispatch(setArtToyLoading(false));
       }
     };
 
     fetchArtToy();
   }, [dispatch, params.id]);
 
-  // Show loading spinner while the art toy data is being fetched
   if (artToyLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -66,41 +83,50 @@ const Page = ({ params }: { params: { id: string } }) => {
     );
   }
 
-  // Handle the form submission (update art toy)
+  if (fetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen text-lg text-gray-600">
+        <p>Product not found (ID: {params.id})</p>
+        <Button className="mt-4" onClick={() => router.push('/store')}>
+          Return to Store
+        </Button>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            ...updatedToy,
-            images: updatedToy.images || [],
-            tags: updatedToy.tags || [],
-          }),
-        }
-      );
+      // USE YOUR INTERNAL API ROUTE
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          ...updatedToy,
+          images: updatedToy.images || [],
+          tags: updatedToy.tags || [],
+        }),
+      });
 
       const data = await response.json();
       console.log(data);
       if (response.ok) {
         alert("Art toy updated successfully!");
-        setIsEditing(false); // Exit edit mode
+        dispatch(setArtToy(data.data || updatedToy));
+        setIsEditing(false);
       } else {
-        alert(data.message || "Failed to update art toy");
+        alert(data.error || data.message || "Failed to update art toy");
       }
     } catch (error) {
+      console.error("Update error:", error);
       alert("An error occurred while updating the art toy.");
     }
   };
 
-  // Handle Delete Product
   const handleDelete = async () => {
     if (
       !window.confirm(
@@ -111,24 +137,22 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${params.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      // USE YOUR INTERNAL API ROUTE
+      const response = await fetch(`/api/products/${params.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       const data = await response.json();
 
       if (response.ok) {
         alert("Product deleted successfully!");
-        router.push("/store"); // Redirect to store/home after delete
+        router.push("/store");
       } else {
-        alert(data.message || "Failed to delete product");
+        alert(data.error || data.message || "Failed to delete product");
       }
     } catch (error) {
       console.error(error);
@@ -136,7 +160,6 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  // Handle input change for editable fields
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -182,7 +205,7 @@ const Page = ({ params }: { params: { id: string } }) => {
   };
 
   const finalSellingPrice =
-    artToy.price * (1 - artToy.discountPercentage / 100);
+    artToy?.price * (1 - (artToy?.discountPercentage || 0) / 100);
 
   return (
     <>
@@ -192,9 +215,8 @@ const Page = ({ params }: { params: { id: string } }) => {
           <div className="flex-1 p-4">
             <h1 className="text-3xl font-bold text-sky-900">{artToy.name}</h1>
 
-            {/* -----RATING----- */}
             {artToy.rating && (
-              <div className="flex items-center ga-2 py-2">
+              <div className="flex items-center gap-2 py-2">
                 <span className="px-1 bg-yellow-400 rounded-sm mr-2">
                   {artToy.rating}
                 </span>
@@ -234,7 +256,6 @@ const Page = ({ params }: { params: { id: string } }) => {
               <span className="flex-1"></span>
             )}
 
-            {/* -----PRICE----- */}
             <div className="flex gap-2 py-4 items-center">
               <span className="text-2xl">{priceFormat(finalSellingPrice)}</span>
               {artToy.discountPercentage > 0 && (
@@ -244,7 +265,6 @@ const Page = ({ params }: { params: { id: string } }) => {
               )}
             </div>
 
-            {/* Display the description of the art toy */}
             {artToy.description && (
               <div className="mt-2 space-y-2 text-lg text-sky-700">
                 {artToy.description.split("\n").map((line, index) => {
@@ -276,7 +296,6 @@ const Page = ({ params }: { params: { id: string } }) => {
               </div>
             )}
 
-            {/* More product details */}
             <div className="mt-4">
               <p>
                 <strong>Arrival Date:</strong>{" "}
@@ -287,18 +306,15 @@ const Page = ({ params }: { params: { id: string } }) => {
               </p>
             </div>
 
-            {/* Admin-only controls: Edit & Delete */}
             {isAdmin && (
               <div className="mt-6 flex gap-4">
-                {/* EDIT BUTTON */}
                 <Button
                   className="w-32"
-                  onClick={() => setIsEditing(!isEditing)} // Toggle editing mode
+                  onClick={() => setIsEditing(!isEditing)}
                 >
                   {isEditing ? "Cancel Edit" : "Edit"}
                 </Button>
 
-                {/* DELETE BUTTON (Visible when not editing) */}
                 {!isEditing && (
                   <Button
                     className="w-32"
@@ -309,7 +325,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                   </Button>
                 )}
 
-                {/* SAVE BUTTON (Only show if in editing mode) */}
                 {isEditing && (
                   <Button className="w-32" onClick={handleSubmit}>
                     Save Changes
@@ -318,7 +333,6 @@ const Page = ({ params }: { params: { id: string } }) => {
               </div>
             )}
 
-            {/* Edit Form (visible only if in editing mode) */}
             {isEditing && (
               <div className="mt-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -424,7 +438,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     />
                   </div>
 
-                  {/* ---- PRICE ---- */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Price
@@ -438,7 +451,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     />
                   </div>
 
-                  {/* ---- DISCOUNT PERCENTAGE ---- */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Discount (%)
@@ -452,7 +464,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     />
                   </div>
 
-                  {/* ---- RATING ---- */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Rating
@@ -469,7 +480,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     />
                   </div>
 
-                  {/* ---- MULTIPLE IMAGES ---- */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Images
@@ -502,7 +512,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     </Button>
                   </div>
 
-                  {/* ---- TAGS ---- */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Tags
@@ -545,16 +554,17 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
       )}
 
-      {/* -----ADD TO CART & BUY NOW----- */}
-      <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
-        <Button
-          className="bg-sky-500 hover:bg-sky-600 text-white max-sm:flex-1 w-48"
-          size={"lg"}
-          onClick={addCartHandle}
-        >
-          Add to Cart
-        </Button>
-      </div>
+      {artToy && (
+        <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
+          <Button
+            className="bg-sky-500 hover:bg-sky-600 text-white max-sm:flex-1 w-48"
+            size={"lg"}
+            onClick={addCartHandle}
+          >
+            Add to Cart
+          </Button>
+        </div>
+      )}
     </>
   );
 };
