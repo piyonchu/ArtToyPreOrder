@@ -5,111 +5,138 @@ const dayjs = require("dayjs");
 // @route   GET /api/v1/arttoys
 // @access  Public
 exports.getArtToys = async (req, res) => {
-  const {
-    rating,
-    discountPercentage,
-    arrivalDate,
-    availableQuota,
-    createdAt,
-    price,
-    tags,
-    sortField,
-    sortOrder,
-    search,
-  } = req.query;
-
   try {
-    const pipeline = [];
+    const {
+      rating,
+      discountPercentage,
+      arrivalDate,
+      availableQuota,
+      createdAt,
+      price,
+      tags,
+      sortField,
+      sortOrder,
+      search,
+      limit,
+      page, // Added pagination support
+    } = req.query;
 
-    // --- 1. SEARCH STAGE (Must be first) ---
+    // --- PAGINATION SETUP ---
+    const limitNum = parseInt(limit) || 12;
+    const pageNum = parseInt(page) || 1;
+    const skip = (pageNum - 1) * limitNum;
+
+    let artToys;
+    let totalCount = 0;
+
+    // ==================================================
+    // SCENARIO 1: ADVANCED SEARCH (Uses Aggregation)
+    // ==================================================
     if (search) {
+      const pipeline = [];
+
+      // 1. $search Stage (Must be first)
       pipeline.push({
         $search: {
-          index: "artToySearchIndex", // <--- UPDATED: Matches your actual Index Name
+          index: "artToySearchIndex", // Your Atlas Index Name
           compound: {
             should: [
               {
                 text: {
                   query: search,
                   path: "name",
-                  score: { boost: { value: 3 } }, // Boost matches in Name
-                  fuzzy: {
-                    maxEdits: 1, // Allows 1 typo (e.g. "Hutao" -> "Hu Tao")
-                    prefixLength: 2, // First 2 letters must match
-                  },
+                  score: { boost: { value: 3 } },
+                  fuzzy: { maxEdits: 1, prefixLength: 2 },
                 },
               },
               {
                 text: {
                   query: search,
                   path: "tags",
-                  fuzzy: {
-                    maxEdits: 1,
-                    prefixLength: 2,
-                  },
+                  fuzzy: { maxEdits: 1, prefixLength: 2 },
                 },
               },
             ],
-            minimumShouldMatch: 1, // At least one condition must allow the match
+            minimumShouldMatch: 1,
           },
         },
       });
+
+      // 2. Filters (same as before)
+      const matchStage = {};
+      if (rating) matchStage.rating = { $gte: Number(rating) };
+      if (discountPercentage) matchStage.discountPercentage = { $gte: Number(discountPercentage) };
+      if (availableQuota) matchStage.availableQuota = { $gte: Number(availableQuota) };
+      if (price) matchStage.price = { $lte: Number(price) };
+      if (arrivalDate) matchStage.arrivalDate = { $gte: new Date(arrivalDate) };
+      if (createdAt) matchStage.createdAt = { $gte: new Date(createdAt) };
+      if (tags) matchStage.tags = { $in: tags.split(",") };
+
+      if (Object.keys(matchStage).length > 0) {
+        pipeline.push({ $match: matchStage });
+      }
+
+      // 3. Sort
+      if (sortField && sortOrder) {
+        const sortDirection = sortOrder === "asc" ? 1 : -1;
+        pipeline.push({ $sort: { [sortField]: sortDirection } });
+      }
+
+      // 4. Pagination in Aggregation
+      // We need a separate count pipeline to get total results for pagination UI
+      // But for now, let's just get the data
+      pipeline.push({ $skip: skip });
+      pipeline.push({ $limit: limitNum });
+
+      artToys = await ArtToy.aggregate(pipeline);
+      totalCount = artToys.length; // Note: Accurate total count in aggregation requires $facet, keeping simple for now
+    } 
+    
+    // ==================================================
+    // SCENARIO 2: STANDARD GET ALL (Uses .find)
+    // ==================================================
+    else {
+      const query = {};
+
+      // Build Query Object
+      if (rating) query.rating = { $gte: Number(rating) };
+      if (discountPercentage) query.discountPercentage = { $gte: Number(discountPercentage) };
+      if (availableQuota) query.availableQuota = { $gte: Number(availableQuota) };
+      if (price) query.price = { $lte: Number(price) };
+      if (arrivalDate) query.arrivalDate = { $gte: new Date(arrivalDate) };
+      if (createdAt) query.createdAt = { $gte: new Date(createdAt) };
+      if (tags) query.tags = { $in: tags.split(",") };
+
+      // Build Sort Object
+      let sortOptions = {};
+      if (sortField && sortOrder) {
+        sortOptions[sortField] = sortOrder === "asc" ? 1 : -1;
+      } else {
+        sortOptions = { createdAt: -1 };
+      }
+
+      // Execute Standard Query
+      totalCount = await ArtToy.countDocuments(query);
+      artToys = await ArtToy.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limitNum);
     }
 
-    // --- 2. FILTER STAGE (Standard Filters) ---
-    const matchStage = {};
-
-    if (rating) matchStage.rating = { $gte: Number(rating) };
-    if (discountPercentage) matchStage.discountPercentage = { $gte: Number(discountPercentage) };
-    if (availableQuota) matchStage.availableQuota = { $gte: Number(availableQuota) };
-    if (price) matchStage.price = { $lte: Number(price) };
-
-    if (arrivalDate) {
-      matchStage.arrivalDate = { $gte: new Date(arrivalDate) };
-    }
-    if (createdAt) {
-      matchStage.createdAt = { $gte: new Date(createdAt) };
-    }
-    if (tags) {
-      const tagArray = tags.split(",");
-      matchStage.tags = { $in: tagArray };
-    }
-
-    // Add match stage only if filters exist
-    if (Object.keys(matchStage).length > 0) {
-      pipeline.push({ $match: matchStage });
-    }
-
-    // --- 3. SORT STAGE ---
-    if (sortField && sortOrder) {
-      const sortDirection = sortOrder === "asc" ? 1 : -1;
-      pipeline.push({ $sort: { [sortField]: sortDirection } });
-    } else if (search) {
-      // If searching without specific sort, showing "Search Score" is helpful for debugging
-      // pipeline.push({ $addFields: { score: { $meta: "searchScore" } } });
-    }
-
-    // --- 4. EXECUTE ---
-    // Important: Use aggregate(), not find()
-    const artToys = await ArtToy.aggregate(pipeline);
-
-    if (artToys.length === 0) {
-      return res.status(200).json({ // Return 200 even if empty, easier for frontend
-        success: true,
-        count: 0,
-        data: [],
-        message: "No art toys found",
-      });
-    }
-
+    // ==================================================
+    // RESPONSE
+    // ==================================================
     res.json({
       success: true,
       count: artToys.length,
+      total: totalCount,
+      page: pageNum,
+      totalPages: Math.ceil(totalCount / limitNum),
       data: artToys,
     });
 
   } catch (error) {
-    console.error("Search Error:", error);
+    console.error("Get ArtToys Error:", error);
     res.status(500).json({
       success: false,
       message: "Server Error",

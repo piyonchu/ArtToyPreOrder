@@ -18,7 +18,10 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/frontend/$1"
     }
-  ]
+  ],
+  "framework": {
+    "name": "nextjs"
+  }
 }
