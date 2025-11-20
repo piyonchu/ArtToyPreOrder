@@ -13,6 +13,8 @@ import { addToCart, setTotal } from "@/redux/slice/cartSlice";
 import { Star, StarHalf } from "lucide-react";
 import React from "react";
 
+export const dynamic = 'force-dynamic';
+
 const Page = ({ params }: { params: { id: string } }) => {
   useFetchProductID({ id: params.id });
   const dispatch = useAppDispatch();
