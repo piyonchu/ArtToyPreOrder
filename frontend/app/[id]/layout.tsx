@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import Loading from "../loading";
+import Loading from "../(pages)/loading";
 
 const ProductLayout = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Spinner from "../../../components/Spinner";
-import { Button } from "../../../components/ui/button";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { setArtToy, setArtToyLoading } from "../../../redux/slice/productSlice";
+import Spinner from "@/components/Spinner";
+import { Button } from "@/components/ui/button";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { setArtToy, setArtToyLoading } from "@/redux/slice/productSlice";
 import { useRouter } from "next/navigation";
 import ProductImgSlider from "@/components/product/ProductImgSlider";
 import { priceFormat } from "@/lib/utils";
