@@ -1,9 +1,228 @@
+// "use client";
+// import { useRouter } from "next/navigation";
+// import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+// import { setTotal } from "@/redux/slice/cartSlice";
+// import clsx from "clsx";
+// import { ChevronRight, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+// import Link from "next/link";
+// import React, { useEffect, useState } from "react";
+// import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+// import { Button } from "./ui/button";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+// import { setAuthStatus, setUser } from "@/redux/slice/userSlice";
+
+// const Header = () => {
+//   const [openMenu, setOpenMenu] = useState(false);
+
+//   const dispatch = useAppDispatch();
+//   const { totalQuantity } = useAppSelector((state) => state.cart);
+//   const { authStatus, user } = useAppSelector((state) => state.user);
+//   const router = useRouter();
+
+//   useEffect(() => {
+//     dispatch(setTotal());
+//   }, [dispatch]);
+
+//   const handleSignOut = () => {
+//     // Remove token from localStorage (if you store it there)
+//     localStorage.removeItem("token");
+//     localStorage.removeItem("role");
+//     dispatch(setAuthStatus(false));
+//     dispatch(setUser(null)); // clear user state
+//     setOpenMenu(false);
+//     router.push("/");
+//   };
+
+//   return (
+//     <>
+//       <header className="border-b stick bg-sky-200 ">
+//         <nav className="flex items-center gap-8 w-[95%] m-auto h-12">
+//           <div className="font-bold text-lg text-sky-800">
+//             <Link href={"/"}>ArtToy Pre-Order</Link>
+//           </div>
+
+//           <div className="md:hidden flex-1"></div>
+//           <ul className="md:flex hidden items-center gap-4 flex-1">
+//             {links.map((elm) => (
+//               <li key={elm.id}>
+//                 <Link href={elm.path}>{elm.name}</Link>
+//               </li>
+//             ))}
+//           </ul>
+
+//           <div className="flex items-center gap-4">
+//             <Link href={"/cart"} title="Cart" className="relative">
+//               <ShoppingBag strokeWidth={1.25} />
+//               {totalQuantity > 0 && (
+//                 <div className="absolute top-[-5px] right-[-7px] bg-red-400 text-white w-5 h-5 rounded-full text-sm flex items-center justify-center">
+//                   {totalQuantity}
+//                 </div>
+//               )}
+//             </Link>
+//             {authStatus ? (
+//               <DropdownMenu>
+//                 <DropdownMenuTrigger>
+//                   {user && (
+//                     <Avatar className="max-md:hidden">
+//                       <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
+//                       <AvatarFallback className="font-semibold text-lg uppercase text-sky-800">
+//                         {user?.name?.charAt(0)}
+//                       </AvatarFallback>
+//                     </Avatar>
+//                   )}
+//                 </DropdownMenuTrigger>
+//                 <DropdownMenuContent>
+//                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
+//                   <DropdownMenuSeparator />
+//                   <DropdownMenuItem>
+//                     <Link href={"/orders"}>Orders</Link>
+//                   </DropdownMenuItem>
+//                   <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+//                     Sign out
+//                   </DropdownMenuItem>
+//                 </DropdownMenuContent>
+//               </DropdownMenu>
+//             ) : (
+//               <Link href={"/signin"} className="max-md:hidden" title="Profile">
+//                 <User strokeWidth={1.25} />
+//               </Link>
+//             )}
+//             <button
+//               className="md:hidden inline-block"
+//               onClick={() => setOpenMenu(!openMenu)}
+//               title="Menu"
+//             >
+//               <Menu strokeWidth={1.25} />
+//             </button>
+//           </div>
+//         </nav>
+//       </header>
+
+//       {/* Mobile Menu */}
+//       <section
+//         className={clsx(
+//           openMenu ? "translate-x-0" : "translate-x-[100vw]",
+//           "fixed inset-0 bg-white transition-transform z-50"
+//         )}
+//       >
+//         <div className="flex p-4">
+//           <div className="flex-1"></div>
+//           <button
+//             className=" hover:border-gray-300 border border-white transition-opacity"
+//             onClick={() => setOpenMenu(!openMenu)}
+//             title="Close"
+//           >
+//             <X strokeWidth={1.25} />
+//           </button>
+//         </div>
+
+//         <div className="px-4">
+//           {authStatus ? (
+//             <div className="border-b pb-2 grid gap-2 ">
+//               <div className="flex items-center gap-4">
+//                 {user && (
+//                   <Avatar>
+//                     <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
+//                     <AvatarFallback className="font-semibold text-lg capitalize">
+//                       {user?.name?.charAt(0)}
+//                     </AvatarFallback>
+//                   </Avatar>
+//                 )}
+//                 <h3 className="capitalize text-xl font-medium text-sky-800">{user?.name}</h3>
+//               </div>
+//               <Button variant={"ghost"} className="justify-start px-0">
+//                 <Link href={"/orders"} onClick={() => setOpenMenu(false)}>
+//                   Orders
+//                 </Link>
+//               </Button>
+//               <Button variant={"ghost"} className="justify-start px-0" onClick={handleSignOut}>
+//                 Sign Out
+//               </Button>
+//             </div>
+//           ) : (
+//             <Link
+//               href={"/signin"}
+//               className="flex items-center py-2 mt-3 border-b hover:bg-gray-100"
+//             >
+//               <div className="flex-1 flex items-center">
+//                 <div className="rounded-lg bg-gray-100 p-2 mr-2">
+//                   <User strokeWidth={1.25} size={20} />
+//                 </div>
+//                 <span className="text-sm text-sky-800">Sign In / Sign Up</span>
+//               </div>
+//               <div>
+//                 <ChevronRight strokeWidth={1.25} />
+//               </div>
+//             </Link>
+//           )}
+
+//           <div className="py-4 grid gap-1">
+//             {links.map((elm) => (
+//               <Link
+//                 key={elm.id}
+//                 className="hover:bg-gray-100 py-2 px-1 font-medium text-sky-800"
+//                 href={elm.path}
+//                 onClick={() => setOpenMenu(false)}
+//               >
+//                 {elm.name}
+//               </Link>
+//             ))}
+//           </div>
+
+//           <div className="grid border-t pt-4">
+//             <Link
+//               className="hover:bg-gray-100 py-2 px-1 text-sm"
+//               href={"/"}
+//               onClick={() => setOpenMenu(false)}
+//             >
+//               Home
+//             </Link>
+//             <Link
+//               className="hover:bg-gray-100 py-2 px-1 text-sm"
+//               href={"/"}
+//               onClick={() => setOpenMenu(false)}
+//             >
+//               About
+//             </Link>
+//             <Link
+//               className="hover:bg-gray-100 py-2 px-1 text-sm"
+//               href={"/"}
+//               onClick={() => setOpenMenu(false)}
+//             >
+//               Support
+//             </Link>
+//           </div>
+//         </div>
+//       </section>
+//     </>
+//   );
+// };
+
+// export default Header;
+
+// // const links = [
+// //   { id: 1, path: "/store", name: "Store" },
+// //   { id: 2, path: "/store/mobiles", name: "Mobiles" },
+// //   { id: 3, path: "/store/tv", name: "TV & display" },
+// //   { id: 4, path: "/store/laptop", name: "Laptop" },
+// //   { id: 5, path: "/store/accessories", name: "Accessories" },
+// // ];
+// const links = [
+//   { id: 1, path: "/store", name: "Store" },
+// ];
 "use client";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setTotal } from "@/redux/slice/cartSlice";
 import clsx from "clsx";
-import { ChevronRight, Menu, Search, ShoppingBag, User, X } from "lucide-react";
+import { ChevronRight, Menu, ShoppingBag, User, X } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -18,7 +237,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { setAuthStatus, setUser } from "@/redux/slice/userSlice";
 
-const Header = () => {
+const Header = ({ onThemeChange, currentTheme }: { onThemeChange: (theme: string) => void, currentTheme: string }) => {
   const [openMenu, setOpenMenu] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -31,178 +250,198 @@ const Header = () => {
   }, [dispatch]);
 
   const handleSignOut = () => {
-    // Remove token from localStorage (if you store it there)
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     dispatch(setAuthStatus(false));
-    dispatch(setUser(null)); // clear user state
+    dispatch(setUser(null));
     setOpenMenu(false);
     router.push("/");
   };
 
+
   return (
-    <>
-      <header className="border-b stick bg-sky-200 ">
-        <nav className="flex items-center gap-8 w-[95%] m-auto h-12">
-          <div className="font-bold text-lg text-sky-800">
-            <Link href={"/"}>ArtToy Pre-Order</Link>
-          </div>
+  <>
+    {/* Added theme variants to background here */}
+    <header className="border-b sticky top-0 bg-sky-200 pink:bg-pink-200 green:bg-green-200 purple:bg-purple-200 transition-colors duration-300">
+      <nav className="flex items-center gap-8 w-[95%] m-auto h-12">
+        {/* Added theme variants to text color here */}
+        <div className="font-bold text-lg text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800">
+          <Link href={"/"}>ArtToy Pre-Order</Link>
+        </div>
 
-          <div className="md:hidden flex-1"></div>
-          <ul className="md:flex hidden items-center gap-4 flex-1">
-            {links.map((elm) => (
-              <li key={elm.id}>
-                <Link href={elm.path}>{elm.name}</Link>
-              </li>
-            ))}
-          </ul>
+        <div className="md:hidden flex-1"></div>
+        <ul className="md:flex hidden items-center gap-4 flex-1">
+          {links.map((elm) => (
+            <li key={elm.id}>
+              <Link href={elm.path}>{elm.name}</Link>
+            </li>
+          ))}
+        </ul>
 
-          <div className="flex items-center gap-4">
-            <Link href={"/cart"} title="Cart" className="relative">
-              <ShoppingBag strokeWidth={1.25} />
-              {totalQuantity > 0 && (
-                <div className="absolute top-[-5px] right-[-7px] bg-red-400 text-white w-5 h-5 rounded-full text-sm flex items-center justify-center">
-                  {totalQuantity}
-                </div>
-              )}
-            </Link>
-            {authStatus ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  {user && (
-                    <Avatar className="max-md:hidden">
-                      <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
-                      <AvatarFallback className="font-semibold text-lg uppercase text-sky-800">
-                        {user?.name?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link href={"/orders"}>Orders</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href={"/signin"} className="max-md:hidden" title="Profile">
-                <User strokeWidth={1.25} />
-              </Link>
-            )}
-            <button
-              className="md:hidden inline-block"
-              onClick={() => setOpenMenu(!openMenu)}
-              title="Menu"
-            >
-              <Menu strokeWidth={1.25} />
-            </button>
-          </div>
-        </nav>
-      </header>
-
-      {/* Mobile Menu */}
-      <section
-        className={clsx(
-          openMenu ? "translate-x-0" : "translate-x-[100vw]",
-          "fixed inset-0 bg-white transition-transform z-50"
-        )}
-      >
-        <div className="flex p-4">
-          <div className="flex-1"></div>
+        {/* Theme Changer Button - Kept static colors so users know which button is which */}
+        <div className="flex items-center gap-2">
           <button
-            className=" hover:border-gray-300 border border-white transition-opacity"
-            onClick={() => setOpenMenu(!openMenu)}
-            title="Close"
+            onClick={() => onThemeChange("blue")}
+            className={clsx("p-2 rounded-full transition-all", { "bg-sky-300 scale-110": currentTheme === "blue" })}
+            title="Blue Theme"
           >
-            <X strokeWidth={1.25} />
+            Blue
+          </button>
+          <button
+            onClick={() => onThemeChange("pink")}
+            className={clsx("p-2 rounded-full transition-all", { "bg-pink-300 scale-110": currentTheme === "pink" })}
+            title="Pink Theme"
+          >
+            Pink
+          </button>
+          <button
+            onClick={() => onThemeChange("green")}
+            className={clsx("p-2 rounded-full transition-all", { "bg-green-300 scale-110": currentTheme === "green" })}
+            title="Green Theme"
+          >
+            Green
+          </button>
+          <button
+            onClick={() => onThemeChange("purple")}
+            className={clsx("p-2 rounded-full transition-all", { "bg-purple-300 scale-110": currentTheme === "purple" })}
+            title="Purple Theme"
+          >
+            Purple
           </button>
         </div>
 
-        <div className="px-4">
+        <div className="flex items-center gap-4">
+          <Link href={"/cart"} title="Cart" className="relative">
+            <ShoppingBag strokeWidth={1.25} />
+            {totalQuantity > 0 && (
+              <div className="absolute top-[-5px] right-[-7px] bg-red-400 text-white w-5 h-5 rounded-full text-sm flex items-center justify-center">
+                {totalQuantity}
+              </div>
+            )}
+          </Link>
+
           {authStatus ? (
-            <div className="border-b pb-2 grid gap-2 ">
-              <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
                 {user && (
-                  <Avatar>
+                  <Avatar className="max-md:hidden">
                     <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
-                    <AvatarFallback className="font-semibold text-lg capitalize">
+                    {/* Added theme variants to Avatar Fallback text */}
+                    <AvatarFallback className="font-semibold text-lg uppercase text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800">
                       {user?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 )}
-                <h3 className="capitalize text-xl font-medium text-sky-800">{user?.name}</h3>
-              </div>
-              <Button variant={"ghost"} className="justify-start px-0">
-                <Link href={"/orders"} onClick={() => setOpenMenu(false)}>
-                  Orders
-                </Link>
-              </Button>
-              <Button variant={"ghost"} className="justify-start px-0" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Link href={"/orders"}>Orders</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Link
-              href={"/signin"}
-              className="flex items-center py-2 mt-3 border-b hover:bg-gray-100"
-            >
-              <div className="flex-1 flex items-center">
-                <div className="rounded-lg bg-gray-100 p-2 mr-2">
-                  <User strokeWidth={1.25} size={20} />
-                </div>
-                <span className="text-sm text-sky-800">Sign In / Sign Up</span>
-              </div>
-              <div>
-                <ChevronRight strokeWidth={1.25} />
-              </div>
+            <Link href={"/signin"} className="max-md:hidden" title="Profile">
+              <User strokeWidth={1.25} />
             </Link>
           )}
 
-          <div className="py-4 grid gap-1">
-            {links.map((elm) => (
-              <Link
-                key={elm.id}
-                className="hover:bg-gray-100 py-2 px-1 font-medium text-sky-800"
-                href={elm.path}
-                onClick={() => setOpenMenu(false)}
-              >
-                {elm.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="grid border-t pt-4">
-            <Link
-              className="hover:bg-gray-100 py-2 px-1 text-sm"
-              href={"/"}
-              onClick={() => setOpenMenu(false)}
-            >
-              Home
-            </Link>
-            <Link
-              className="hover:bg-gray-100 py-2 px-1 text-sm"
-              href={"/"}
-              onClick={() => setOpenMenu(false)}
-            >
-              About
-            </Link>
-            <Link
-              className="hover:bg-gray-100 py-2 px-1 text-sm"
-              href={"/"}
-              onClick={() => setOpenMenu(false)}
-            >
-              Support
-            </Link>
-          </div>
+          <button
+            className="md:hidden inline-block"
+            onClick={() => setOpenMenu(!openMenu)}
+            title="Menu"
+          >
+            <Menu strokeWidth={1.25} />
+          </button>
         </div>
-      </section>
-    </>
-  );
+      </nav>
+    </header>
+
+    {/* Mobile Menu */}
+    <section
+      className={clsx(
+        openMenu ? "translate-x-0" : "translate-x-[100vw]",
+        "fixed inset-0 bg-white transition-transform z-50"
+      )}
+    >
+      <div className="flex p-4">
+        <div className="flex-1"></div>
+        <button
+          className=" hover:border-gray-300 border border-white transition-opacity"
+          onClick={() => setOpenMenu(!openMenu)}
+          title="Close"
+        >
+          <X strokeWidth={1.25} />
+        </button>
+      </div>
+
+      <div className="px-4">
+        {authStatus ? (
+          <div className="border-b pb-2 grid gap-2">
+            <div className="flex items-center gap-4">
+              {user && (
+                <Avatar>
+                  <AvatarImage src={user.avatar || ""} alt={user.name || ""} />
+                  <AvatarFallback className="font-semibold text-lg capitalize">
+                    {user?.name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              {/* Added theme variants to User Name text */}
+              <h3 className="capitalize text-xl font-medium text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800">
+                {user?.name}
+              </h3>
+            </div>
+            <Button variant={"ghost"} className="justify-start px-0">
+              <Link href={"/orders"} onClick={() => setOpenMenu(false)}>
+                Orders
+              </Link>
+            </Button>
+            <Button variant={"ghost"} className="justify-start px-0" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </div>
+        ) : (
+          <Link
+            href={"/signin"}
+            className="flex items-center py-2 mt-3 border-b hover:bg-gray-100"
+          >
+            <div className="flex-1 flex items-center">
+              <div className="rounded-lg bg-gray-100 p-2 mr-2">
+                <User strokeWidth={1.25} size={20} />
+              </div>
+              {/* Added theme variants to Sign In text */}
+              <span className="text-sm text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800">
+                Sign In / Sign Up
+              </span>
+            </div>
+            <div>
+              <ChevronRight strokeWidth={1.25} />
+            </div>
+          </Link>
+        )}
+
+        <div className="py-4 grid gap-1">
+          {links.map((elm) => (
+            <Link
+              key={elm.id}
+              // Added theme variants to Mobile Menu Links
+              className="hover:bg-gray-100 py-2 px-1 font-medium text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800"
+              href={elm.path}
+              onClick={() => setOpenMenu(false)}
+            >
+              {elm.name}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  </>
+);
 };
 
 export default Header;

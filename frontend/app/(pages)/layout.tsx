@@ -2,7 +2,7 @@
 
 import Footer from "../../components/Footer";
 import Header from "@/components/Header";
-import React, { Suspense, useEffect } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Loading from "./loading";
 import { useAppDispatch } from "../../redux/hooks";
 import { setAuthStatus, setUser } from "../../redux/slice/userSlice";
@@ -11,7 +11,9 @@ import { User } from "@/types";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
+  const [currentTheme, setCurrentTheme] = useState<string>("blue");
 
+  // Fetch user profile after authentication
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return; // user not logged in
@@ -44,11 +46,32 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     fetchUser();
   }, [dispatch]);
 
+  // Get the saved theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setCurrentTheme(savedTheme);
+      document.documentElement.setAttribute("data-theme", savedTheme); // Set the theme
+    } else {
+      // Default to blue theme if no theme is saved
+      document.documentElement.setAttribute("data-theme", "blue");
+    }
+  }, []);
+
+  // Function to toggle the theme and store it in localStorage
+  const toggleTheme = (theme: string) => {
+    setCurrentTheme(theme);
+    localStorage.setItem("theme", theme);
+    document.documentElement.setAttribute("data-theme", theme); // Update theme
+  };
+
   return (
     <>
       <Suspense fallback={<Loading />}>
-        <Header />
-        {children}
+        <Header onThemeChange={toggleTheme} currentTheme={currentTheme} />
+        <div className={currentTheme}>
+          {children}
+        </div>
         <Footer />
       </Suspense>
     </>

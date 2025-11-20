@@ -137,121 +137,129 @@ const Page = () => {
   console.log("Orders Data:", orders);
 
   return (
-    <main className="mx-auto my-4 max-w-6xl px-2 md:my-6 md:px-0">
-      <h2 className="text-3xl font-bold text-sky-900">Order Details</h2>
-      <div className="mt-3 text-sm">
-        Check the status of recent and old orders & discover more products
-      </div>
+  <main className="mx-auto my-4 max-w-6xl px-2 md:my-6 md:px-0">
+    {/* Added theme variants to Title text */}
+    <h2 className="text-3xl font-bold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+      Order Details
+    </h2>
+    <div className="mt-3 text-sm">
+      Check the status of recent and old orders & discover more products
+    </div>
 
-      {/* Display orders if available */}
-      {orders && orders.length > 0 ? (
-        <div className="flex-1">
-          <div className="p-8">
-            <ul className="-my-7 divide-y divide-gray-200">
-              {orders.map((order) => (
-                <li key={order._id}>
-                  <div className="flex flex-col justify-between space-x-5 py-7 md:flex-row">
-                    <div className="flex flex-1 items-stretch">
-                      <div className="flex-shrink-0">
-                        <Image
-                          width={50}
-                          height={50}
-                          className="h-20 w-20 rounded-lg border border-gray-200 object-contain"
-                          src={order.artToy.posterPicture}
-                          alt={order.artToy.name}
-                        />
-                      </div>
-
-                      <div className="ml-5 flex flex-col justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm font-bold text-sky-900">
-                            {order.artToy.name}
-                          </p>
-                        </div>
-
-                        <p className="mt-4 text-sm font-medium text-sky-700">
-                          x {order.orderAmount}
-                        </p>
-                      </div>
+    {/* Display orders if available */}
+    {orders && orders.length > 0 ? (
+      <div className="flex-1">
+        <div className="p-8">
+          <ul className="-my-7 divide-y divide-gray-200">
+            {orders.map((order) => (
+              <li key={order._id}>
+                <div className="flex flex-col justify-between space-x-5 py-7 md:flex-row">
+                  <div className="flex flex-1 items-stretch">
+                    <div className="flex-shrink-0">
+                      <Image
+                        width={50}
+                        height={50}
+                        className="h-20 w-20 rounded-lg border border-gray-200 object-contain"
+                        src={order.artToy.posterPicture}
+                        alt={order.artToy.name}
+                      />
                     </div>
 
-                    <div className="ml-auto flex flex-col items-end justify-between">
-                      <p className="text-right text-sm font-bold text-sky-900">
-                        {priceFormat(order.artToy.price * order.orderAmount)}{" "}
-                        {/* Display price */}
-                      </p>
-
-                      {/* Edit or Delete buttons */}
-                      <div className="flex space-x-3 mt-4">
-                        {editOrderId === order._id ? (
-                          <>
-                            <input
-                              type="number"
-                              min="1"
-                              max="5"
-                              step="1" // Ensures only integer values
-                              value={newOrderAmount || order.orderAmount}
-                              onChange={(e) => {
-                                // Ensure the value is an integer between 1 and 5
-                                let value = parseInt(e.target.value, 10);
-
-                                if (isNaN(value)) {
-                                  value = 1; // Default to 1 if the value is invalid
-                                }
-
-                                if (value < 1) value = 1; // Prevent values less than 1
-                                if (value > 5) value = 5; // Prevent values greater than 5
-
-                                setNewOrderAmount(value);
-                              }}
-                              className="w-16 p-1 border border-gray-300 rounded"
-                            />
-                            <button
-                              onClick={() => handleUpdateOrder(order._id)}
-                              className="bg-blue-500 text-white py-1 px-3 rounded"
-                            >
-                              Update
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => setEditOrderId(order._id)}
-                            className="bg-yellow-500 text-white py-1 px-3 rounded"
-                          >
-                            Edit
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() => handleDeleteOrder(order._id)}
-                          className="bg-red-500 text-white py-1 px-3 rounded"
-                        >
-                          Cancel
-                        </button>
+                    <div className="ml-5 flex flex-col justify-between">
+                      <div className="flex-1">
+                        {/* Added theme variants to Product Name text */}
+                        <p className="text-sm font-bold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+                          {order.artToy.name}
+                        </p>
                       </div>
+
+                      {/* Added theme variants to Quantity text */}
+                      <p className="mt-4 text-sm font-medium text-sky-700 pink:text-pink-700 green:text-green-700 purple:text-purple-700 transition-colors duration-300">
+                        x {order.orderAmount}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Display user details if the logged-in user is an admin */}
-                  {userRole === "admin" && (
-                    <div className="mt-4 text-sm text-sky-700">
-                      <h4 className="font-bold">User Information</h4>
-                      <p><strong>Name:</strong> {order.user?.name}</p>
-                      <p><strong>Email:</strong> {order.user?.email}</p>
-                      <p><strong>Phone:</strong> {order.user?.tel}</p>
+                  <div className="ml-auto flex flex-col items-end justify-between">
+                    {/* Added theme variants to Price text */}
+                    <p className="text-right text-sm font-bold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+                      {priceFormat(order.artToy.price * order.orderAmount)}{" "}
+                      {/* Display price */}
+                    </p>
+
+                    {/* Edit or Delete buttons */}
+                    <div className="flex space-x-3 mt-4">
+                      {editOrderId === order._id ? (
+                        <>
+                          <input
+                            type="number"
+                            min="1"
+                            max="5"
+                            step="1" // Ensures only integer values
+                            value={newOrderAmount || order.orderAmount}
+                            onChange={(e) => {
+                              // Ensure the value is an integer between 1 and 5
+                              let value = parseInt(e.target.value, 10);
+
+                              if (isNaN(value)) {
+                                value = 1; // Default to 1 if the value is invalid
+                              }
+
+                              if (value < 1) value = 1; // Prevent values less than 1
+                              if (value > 5) value = 5; // Prevent values greater than 5
+
+                              setNewOrderAmount(value);
+                            }}
+                            className="w-16 p-1 border border-gray-300 rounded"
+                          />
+                          <button
+                            onClick={() => handleUpdateOrder(order._id)}
+                            // Added theme variants to Update button (blue -> pink/green/purple)
+                            className="bg-blue-500 pink:bg-pink-500 green:bg-green-500 purple:bg-purple-500 text-white py-1 px-3 rounded transition-colors duration-300"
+                          >
+                            Update
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setEditOrderId(order._id)}
+                          className="bg-yellow-500 text-white py-1 px-3 rounded"
+                        >
+                          Edit
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleDeleteOrder(order._id)}
+                        className="bg-red-500 text-white py-1 px-3 rounded"
+                      >
+                        Cancel
+                      </button>
                     </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <hr className="my-8 border-t border-t-gray-200" />
-          </div>
+                  </div>
+                </div>
+
+                {/* Display user details if the logged-in user is an admin */}
+                {userRole === "admin" && (
+                  // Added theme variants to User Info text
+                  <div className="mt-4 text-sm text-sky-700 pink:text-pink-700 green:text-green-700 purple:text-purple-700 transition-colors duration-300">
+                    <h4 className="font-bold">User Information</h4>
+                    <p><strong>Name:</strong> {order.user?.name}</p>
+                    <p><strong>Email:</strong> {order.user?.email}</p>
+                    <p><strong>Phone:</strong> {order.user?.tel}</p>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+          <hr className="my-8 border-t border-t-gray-200" />
         </div>
-      ) : (
-        <div>No Orders Found</div>
-      )}
-    </main>
-  );
+      </div>
+    ) : (
+      <div>No Orders Found</div>
+    )}
+  </main>
+);
 };
 
 export default Page;

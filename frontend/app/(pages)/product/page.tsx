@@ -226,325 +226,332 @@ const ProductPage = () => {
     artToy?.price * (1 - (artToy?.discountPercentage || 0) / 100);
 
   return (
-    <>
-      {artToy && artToy.images && artToy.name && artToy.description ? (
-        <div className="sm:flex block bg-slate-50 min-h-screen pb-24">
-          <ProductImgSlider images={artToy.images} />
-          <div className="flex-1 p-4">
-            <h1 className="text-3xl font-bold text-sky-900">{artToy.name}</h1>
+  <>
+    {artToy && artToy.images && artToy.name && artToy.description ? (
+      <div className="sm:flex block bg-slate-50 min-h-screen pb-24">
+        <ProductImgSlider images={artToy.images} />
+        <div className="flex-1 p-4">
+          {/* Added theme variants to Title text */}
+          <h1 className="text-3xl font-bold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+            {artToy.name}
+          </h1>
 
-            {artToy.rating && (
-              <div className="flex items-center gap-2 py-2">
-                <span className="px-1 bg-yellow-400 rounded-sm mr-2">
-                  {artToy.rating}
-                </span>
-                {Array.from({ length: 5 }, (_, index) => {
-                  let num = index + 0.5;
-                  return (
-                    <React.Fragment key={index}>
-                      {artToy.rating && (
-                        <span>
-                          {artToy.rating >= index + 1 ? (
-                            <Star
-                              className="fill-yellow-300"
-                              strokeWidth={1.25}
-                              size={18}
-                            />
-                          ) : artToy.rating >= num ? (
-                            <StarHalf
-                              className="fill-yellow-300"
-                              strokeWidth={1.25}
-                              size={18}
-                            />
-                          ) : (
-                            ""
-                          )}
-                        </span>
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            )}
-            {artToy.discountPercentage > 0 ? (
-              <span className="text-[#f50514] text-3xl flex-1 text-red-500">
-                {artToy.discountPercentage}% OFF
+          {artToy.rating && (
+            <div className="flex items-center gap-2 py-2">
+              <span className="px-1 bg-yellow-400 rounded-sm mr-2">
+                {artToy.rating}
               </span>
-            ) : (
-              <span className="flex-1"></span>
-            )}
-
-            <div className="flex gap-2 py-4 items-center">
-              <span className="text-2xl">{priceFormat(finalSellingPrice)}</span>
-              {artToy.discountPercentage > 0 && (
-                <del className="text-gray-500 text-xs">
-                  {priceFormat(artToy.price)}
-                </del>
-              )}
-            </div>
-
-            {artToy.description && (
-              <div className="mt-2 space-y-2 text-lg text-sky-700">
-                {artToy.description.split("\n").map((line, index) => {
-                  const text = line.trim();
-                  if (!text) return null;
-                  const isBullet = text.startsWith("--");
-                  const cleanText = isBullet ? text.substring(2).trim() : text;
-                  const [title, ...rest] = cleanText.split(":");
-                  const body = rest.join(":");
-
-                  return (
-                    <div key={index} className="flex items-start">
-                      {isBullet && <span className="mr-2 text-sky-600">•</span>}
-                      <div>
-                        {body ? (
-                          <>
-                            <span className="font-bold text-sky-900">
-                              {title}:
-                            </span>
-                            {body}
-                          </>
+              {Array.from({ length: 5 }, (_, index) => {
+                let num = index + 0.5;
+                return (
+                  <React.Fragment key={index}>
+                    {artToy.rating && (
+                      <span>
+                        {artToy.rating >= index + 1 ? (
+                          <Star
+                            className="fill-yellow-300"
+                            strokeWidth={1.25}
+                            size={18}
+                          />
+                        ) : artToy.rating >= num ? (
+                          <StarHalf
+                            className="fill-yellow-300"
+                            strokeWidth={1.25}
+                            size={18}
+                          />
                         ) : (
-                          cleanText
+                          ""
                         )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="mt-4">
-              <p>
-                <strong>Arrival Date:</strong>{" "}
-                {new Date(artToy.arrivalDate).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Available Quota:</strong> {artToy.availableQuota}
-              </p>
+                      </span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
+          )}
+          {artToy.discountPercentage > 0 ? (
+            <span className="text-[#f50514] text-3xl flex-1 text-red-500">
+              {artToy.discountPercentage}% OFF
+            </span>
+          ) : (
+            <span className="flex-1"></span>
+          )}
 
-            {isAdmin && (
-              <div className="mt-6 flex gap-4">
-                <Button
-                  className="w-32"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  {isEditing ? "Cancel Edit" : "Edit"}
-                </Button>
-
-                {!isEditing && (
-                  <Button
-                    className="w-32"
-                    variant="destructive"
-                    onClick={handleDelete}
-                  >
-                    Delete
-                  </Button>
-                )}
-
-                {isEditing && (
-                  <Button className="w-32" onClick={handleSubmit}>
-                    Save Changes
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {isEditing && (
-              <div className="mt-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="sku">
-                      SKU
-                    </label>
-                    <input
-                      type="text"
-                      id="sku"
-                      name="sku"
-                      value={updatedToy.sku || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="name">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={updatedToy.name || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="description">
-                      Description
-                    </label>
-                    <textarea
-                      id="description"
-                      name="description"
-                      rows={4}
-                      value={updatedToy.description || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="arrivalDate">
-                      Arrival Date
-                    </label>
-                    <input
-                      type="date"
-                      id="arrivalDate"
-                      name="arrivalDate"
-                      value={updatedToy.arrivalDate || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="availableQuota">
-                      Available Quota
-                    </label>
-                    <input
-                      type="number"
-                      id="availableQuota"
-                      name="availableQuota"
-                      value={updatedToy.availableQuota || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="posterPicture">
-                      Poster Picture URL
-                    </label>
-                    <input
-                      type="text"
-                      id="posterPicture"
-                      name="posterPicture"
-                      value={updatedToy.posterPicture || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Price</label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={updatedToy.price || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Discount (%)</label>
-                    <input
-                      type="number"
-                      name="discountPercentage"
-                      value={updatedToy.discountPercentage || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Rating</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      name="rating"
-                      value={updatedToy.rating || ''}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Images</label>
-                    {updatedToy.images?.map((img: string, index: number) => (
-                      <div key={index} className="flex gap-2 mt-2">
-                        <input
-                          type="text"
-                          value={img}
-                          onChange={(e) => handleArrayChange("images", index, e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-lg"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          onClick={() => handleArrayRemove("images", index)}
-                        >
-                          X
-                        </Button>
-                      </div>
-                    ))}
-                    <Button type="button" className="mt-2" onClick={() => handleArrayAdd("images")}>
-                      + Add Image
-                    </Button>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Tags</label>
-                    {updatedToy.tags?.map((tag: string, index: number) => (
-                      <div key={index} className="flex gap-2 mt-2">
-                        <input
-                          type="text"
-                          value={tag}
-                          onChange={(e) => handleArrayChange("tags", index, e.target.value)}
-                          className="w-full p-3 border border-gray-300 rounded-lg"
-                        />
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          onClick={() => handleArrayRemove("tags", index)}
-                        >
-                          X
-                        </Button>
-                      </div>
-                    ))}
-                    <Button type="button" className="mt-2" onClick={() => handleArrayAdd("tags")}>
-                      + Add Tag
-                    </Button>
-                  </div>
-                </form>
-              </div>
+          <div className="flex gap-2 py-4 items-center">
+            <span className="text-2xl">{priceFormat(finalSellingPrice)}</span>
+            {artToy.discountPercentage > 0 && (
+              <del className="text-gray-500 text-xs">
+                {priceFormat(artToy.price)}
+              </del>
             )}
           </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-screen text-lg text-gray-600">
-          <p>No ArtToy data found.</p>
-        </div>
-      )}
 
-      {artToy && (
-        <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
-          <Button
-            className="bg-sky-500 hover:bg-sky-600 text-white max-sm:flex-1 w-48"
-            size={"lg"}
-            onClick={addCartHandle}
-          >
-            Add to Cart
-          </Button>
+          {artToy.description && (
+            // Added theme variants to Description text container
+            <div className="mt-2 space-y-2 text-lg text-sky-700 pink:text-pink-700 green:text-green-700 purple:text-purple-700 transition-colors duration-300">
+              {artToy.description.split("\n").map((line, index) => {
+                const text = line.trim();
+                if (!text) return null;
+                const isBullet = text.startsWith("--");
+                const cleanText = isBullet ? text.substring(2).trim() : text;
+                const [title, ...rest] = cleanText.split(":");
+                const body = rest.join(":");
+
+                return (
+                  <div key={index} className="flex items-start">
+                    {/* Added theme variants to Bullet points */}
+                    {isBullet && <span className="mr-2 text-sky-600 pink:text-pink-600 green:text-green-600 purple:text-purple-600 transition-colors duration-300">•</span>}
+                    <div>
+                      {body ? (
+                        <>
+                          {/* Added theme variants to Description Keys/Titles */}
+                          <span className="font-bold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+                            {title}:
+                          </span>
+                          {body}
+                        </>
+                      ) : (
+                        cleanText
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-4">
+            <p>
+              <strong>Arrival Date:</strong>{" "}
+              {new Date(artToy.arrivalDate).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Available Quota:</strong> {artToy.availableQuota}
+            </p>
+          </div>
+
+          {isAdmin && (
+            <div className="mt-6 flex gap-4">
+              <Button
+                className="w-32"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                {isEditing ? "Cancel Edit" : "Edit"}
+              </Button>
+
+              {!isEditing && (
+                <Button
+                  className="w-32"
+                  variant="destructive"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              )}
+
+              {isEditing && (
+                <Button className="w-32" onClick={handleSubmit}>
+                  Save Changes
+                </Button>
+              )}
+            </div>
+          )}
+
+          {isEditing && (
+            <div className="mt-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="sku">
+                    SKU
+                  </label>
+                  <input
+                    type="text"
+                    id="sku"
+                    name="sku"
+                    value={updatedToy.sku || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="name">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={updatedToy.name || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="description">
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={4}
+                    value={updatedToy.description || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="arrivalDate">
+                    Arrival Date
+                  </label>
+                  <input
+                    type="date"
+                    id="arrivalDate"
+                    name="arrivalDate"
+                    value={updatedToy.arrivalDate || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="availableQuota">
+                    Available Quota
+                  </label>
+                  <input
+                    type="number"
+                    id="availableQuota"
+                    name="availableQuota"
+                    value={updatedToy.availableQuota || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700" htmlFor="posterPicture">
+                    Poster Picture URL
+                  </label>
+                  <input
+                    type="text"
+                    id="posterPicture"
+                    name="posterPicture"
+                    value={updatedToy.posterPicture || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Price</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={updatedToy.price || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Discount (%)</label>
+                  <input
+                    type="number"
+                    name="discountPercentage"
+                    value={updatedToy.discountPercentage || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Rating</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    name="rating"
+                    value={updatedToy.rating || ''}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Images</label>
+                  {updatedToy.images?.map((img: string, index: number) => (
+                    <div key={index} className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={img}
+                        onChange={(e) => handleArrayChange("images", index, e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => handleArrayRemove("images", index)}
+                      >
+                        X
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" className="mt-2" onClick={() => handleArrayAdd("images")}>
+                    + Add Image
+                  </Button>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tags</label>
+                  {updatedToy.tags?.map((tag: string, index: number) => (
+                    <div key={index} className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => handleArrayChange("tags", index, e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => handleArrayRemove("tags", index)}
+                      >
+                        X
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" className="mt-2" onClick={() => handleArrayAdd("tags")}>
+                    + Add Tag
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
-      )}
-    </>
-  );
+      </div>
+    ) : (
+      <div className="flex items-center justify-center h-screen text-lg text-gray-600">
+        <p>No ArtToy data found.</p>
+      </div>
+    )}
+
+    {artToy && (
+      <div className="fixed inset-x-0 bottom-0 h-[72px] p-2 bg-white/60 border-t flex items-center md:justify-end justify-center gap-4 md:pr-32 sm:pr-12">
+        {/* Added theme variants to Add to Cart button background and hover */}
+        <Button
+          className="bg-sky-500 pink:bg-pink-500 green:bg-green-500 purple:bg-purple-500 hover:bg-sky-600 pink:hover:bg-pink-600 green:hover:bg-green-600 purple:hover:bg-purple-600 text-white max-sm:flex-1 w-48 transition-colors duration-300"
+          size={"lg"}
+          onClick={addCartHandle}
+        >
+          Add to Cart
+        </Button>
+      </div>
+    )}
+  </>
+);
 };
 
 export default ProductPage;

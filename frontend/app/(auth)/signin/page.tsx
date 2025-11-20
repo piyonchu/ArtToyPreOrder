@@ -15,10 +15,12 @@ const Page = () => {
     <main className="grid grid-cols-1 md:grid-cols-2 h-[100dvh]">
       <section className="grid justify-center content-center">
         <div className="space-y-1">
-          <h2 className="text-2xl font-medium text-sky-900">
+          {/* Added theme variants to Title */}
+          <h2 className="text-2xl font-medium text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
             Welcome back to ArtToy Pre-Order
           </h2>
-          <p className="py-2 text-sky-900">
+          {/* Added theme variants to Subtext */}
+          <p className="py-2 text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
             {/* 1. Add the missing '?' manually */}
             Don&apos;t have an account?
             {/* 2. Add {" "} to force a space before the link */}{" "}

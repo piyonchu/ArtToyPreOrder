@@ -4,7 +4,8 @@ import { Instagram, Twitter, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="grid justify-center p-4 gap-8 bg-sky-200 text-base-content">
+    // Added theme variants to background color
+    <footer className="grid justify-center p-4 gap-8 bg-sky-200 pink:bg-pink-200 green:bg-green-200 purple:bg-purple-200 text-base-content transition-colors duration-300">
       <div className="flex items-center justify-center gap-10">
         <Link href={"#"} className="hover:underline">
           About us
@@ -47,5 +48,6 @@ const Footer = () => {
     </footer>
   );
 };
+
 
 export default Footer;

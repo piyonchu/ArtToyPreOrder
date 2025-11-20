@@ -78,5 +78,14 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    function ({ addVariant }) {
+      const themes = ["blue", "pink", "purple", "green", "gray"];
+
+      themes.forEach((theme) => {
+        addVariant(theme, `[data-theme=${theme}] &`);
+      });
+    },
+  ],
 };

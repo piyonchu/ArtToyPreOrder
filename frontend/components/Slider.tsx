@@ -13,7 +13,8 @@ import Link from "next/link";
 
 const Slider = () => {
   return (
-    <section className="translate-y-4 shadow-2xl border-4 rounded-2xl border-blue-300 relative max-w-[83rem] mx-auto">
+    // Added theme variants to border color
+    <section className="translate-y-4 shadow-2xl border-4 rounded-2xl border-blue-300 pink:border-pink-300 green:border-green-300 purple:border-purple-300 relative max-w-[83rem] mx-auto transition-colors duration-300">
       <Swiper
         slidesPerView={1}
         navigation={true}
@@ -51,7 +52,10 @@ const Slider = () => {
                   </del>
                 </div>
                 <div>
-                  <Button className="bg-sky-500 hover:bg-sky-600 text-white">Preorder now</Button>
+                  {/* Added theme variants to Button background and hover states */}
+                  <Button className="bg-sky-500 pink:bg-pink-500 green:bg-green-500 purple:bg-purple-500 hover:bg-sky-600 pink:hover:bg-pink-600 green:hover:bg-green-600 purple:hover:bg-purple-600 text-white transition-colors duration-300">
+                    Preorder now
+                  </Button>
                 </div>
               </div>
             </Link>

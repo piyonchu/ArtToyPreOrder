@@ -49,65 +49,67 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
   };
 
   return (
-    <Link href={`/product?id=${_id}`}>
-      <Card className="rounded-2xl grid items-center h-full border-sky-800 border-2 bg-sky-50 hover:shadow-lg transition-shadow">
-        <CardHeader className="bg-gray-50 aspect-[1/0.85] items-center justify-center p-0 rounded-2xl">
-          <figure className="h-full">
-            <Image
-              src={posterPicture}
-              width={width < 400 ? 100 : 200}
-              height={width < 400 ? 100 : 200}
-              alt={name}
-              className="brightness-[0.98] w-full h-full object-scale-down p-6"
-            />
-          </figure>
-        </CardHeader>
-        <CardContent className="md:p-4 md:pb-0 p-2 pb-0">
-          <p className="font-semibold text-sky-900">
-            {name.length > 100 ? name.slice(0, 100) + "..." : name}
-          </p>
-          <p className="text-sm text-sky-700">
-            {description.length > 60
-              ? description.slice(0, 60) + "..."
-              : description}
-          </p>
-          <div className="flex items-center">
-            {discountPercentage > 0 ? (
-              <span className="text-[#f50514] text-sm flex-1">
-                {discountPercentage}% OFF
-              </span>
-            ) : (
-              <span className="flex-1"></span>
-            )}
-            <span className="flex items-center text-sm gap-1 text-yellow-500">
-              <Star className="w-4 h-4 fill-yellow-300" />
-              <span>{rating}</span>
+  <Link href={`/product?id=${_id}`}>
+    <Card className="rounded-2xl grid items-center h-full border-sky-800 pink:border-pink-800 green:border-green-800 purple:border-purple-800 border-2 bg-sky-50 pink:bg-pink-50 green:bg-green-50 purple:bg-purple-50 hover:shadow-lg transition-all duration-300">
+      <CardHeader className="bg-gray-50 aspect-[1/0.85] items-center justify-center p-0 rounded-2xl">
+        <figure className="h-full">
+          <Image
+            src={posterPicture}
+            width={width < 400 ? 100 : 200}
+            height={width < 400 ? 100 : 200}
+            alt={name}
+            className="brightness-[0.98] w-full h-full object-scale-down p-6"
+          />
+        </figure>
+      </CardHeader>
+      <CardContent className="md:p-4 md:pb-0 p-2 pb-0">
+        <p className="font-semibold text-sky-900 pink:text-pink-900 green:text-green-900 purple:text-purple-900 transition-colors duration-300">
+          {name.length > 100 ? name.slice(0, 100) + "..." : name}
+        </p>
+        <p className="text-sm text-sky-700 pink:text-pink-700 green:text-green-700 purple:text-purple-700 transition-colors duration-300">
+          {description.length > 60
+            ? description.slice(0, 60) + "..."
+            : description}
+        </p>
+        <div className="flex items-center">
+          {discountPercentage > 0 ? (
+            <span className="text-[#f50514] text-sm flex-1">
+              {discountPercentage}% OFF
             </span>
-          </div>
-          <div className="flex items-center py-2 gap-1">
-            <span className="font-medium text-sky-800">{priceFormat(finalSellingPrice)}</span>
-            {discountPercentage > 0 && (
-              <del className="text-gray-500 text-xs">
-                {priceFormat(price)} 
-              </del>
-            )}
-          </div>
-          <div className="flex items-center justify-between mt-2 text-xs text-sky-800">
-            <span>Available: {availableQuota}</span>
-            <span>Arrival: {new Date(arrivalDate).toLocaleDateString()}</span>
-          </div>
-        </CardContent>
-        <CardFooter className="md:p-4 md:pt-0 p-2 pt-0">
-          <Button
-            className="translate-y-1 border w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white"
-            onClick={addToCartHandle}
-          >
-            Add to Cart
-          </Button>
-        </CardFooter>
-      </Card>
-    </Link>
-  );
+          ) : (
+            <span className="flex-1"></span>
+          )}
+          <span className="flex items-center text-sm gap-1 text-yellow-500">
+            <Star className="w-4 h-4 fill-yellow-300" />
+            <span>{rating}</span>
+          </span>
+        </div>
+        <div className="flex items-center py-2 gap-1">
+          <span className="font-medium text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800 transition-colors duration-300">
+            {priceFormat(finalSellingPrice)}
+          </span>
+          {discountPercentage > 0 && (
+            <del className="text-gray-500 text-xs">
+              {priceFormat(price)} 
+            </del>
+          )}
+        </div>
+        <div className="flex items-center justify-between mt-2 text-xs text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800 transition-colors duration-300">
+          <span>Available: {availableQuota}</span>
+          <span>Arrival: {new Date(arrivalDate).toLocaleDateString()}</span>
+        </div>
+      </CardContent>
+      <CardFooter className="md:p-4 md:pt-0 p-2 pt-0">
+        <Button
+          className="translate-y-1 border w-full h-10 rounded-xl bg-sky-600 pink:bg-pink-600 green:bg-green-600 purple:bg-purple-600 hover:bg-sky-700 pink:hover:bg-pink-700 green:hover:bg-green-700 purple:hover:bg-purple-700 text-white transition-colors duration-300"
+          onClick={addToCartHandle}
+        >
+          Add to Cart
+        </Button>
+      </CardFooter>
+    </Card>
+  </Link>
+);
 };
 
 export default Cards;
