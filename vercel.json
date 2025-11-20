@@ -21,7 +21,5 @@
       "dest": "/frontend/$1"
     }
   ],
-  "framework": {
-    "name": "nextjs"
-  }
+  "framework": "nextjs"
 }
