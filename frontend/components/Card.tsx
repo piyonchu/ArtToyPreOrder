@@ -35,7 +35,6 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
   const addToCartHandle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation(); 
-
     dispatch(
       addToCart({ 
         _id, 
@@ -50,8 +49,8 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
   };
 
   return (
-    <Link href={`/${_id}`}>
-      <Card className="rounded-2xl grid items-center h-full border-sky-800 border-2 bg-sky-50">
+    <Link href={`/product?id=${_id}`}>
+      <Card className="rounded-2xl grid items-center h-full border-sky-800 border-2 bg-sky-50 hover:shadow-lg transition-shadow">
         <CardHeader className="bg-gray-50 aspect-[1/0.85] items-center justify-center p-0 rounded-2xl">
           <figure className="h-full">
             <Image
@@ -80,16 +79,13 @@ const Cards = ({ toy }: { toy: IArtToy }) => {
             ) : (
               <span className="flex-1"></span>
             )}
-
             <span className="flex items-center text-sm gap-1 text-yellow-500">
               <Star className="w-4 h-4 fill-yellow-300" />
               <span>{rating}</span>
             </span>
           </div>
-
           <div className="flex items-center py-2 gap-1">
             <span className="font-medium text-sky-800">{priceFormat(finalSellingPrice)}</span>
-
             {discountPercentage > 0 && (
               <del className="text-gray-500 text-xs">
                 {priceFormat(price)} 

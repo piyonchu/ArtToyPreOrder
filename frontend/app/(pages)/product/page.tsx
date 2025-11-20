@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { setArtToy, setArtToyLoading } from "@/redux/slice/productSlice";
-import { useRouter } from "next/navigation";
 import ProductImgSlider from "@/components/product/ProductImgSlider";
 import { priceFormat } from "@/lib/utils";
 import { addToCart, setTotal } from "@/redux/slice/cartSlice";
 import { Star, StarHalf } from "lucide-react";
 import React from "react";
 
-const Page = ({ params }: { params: { id: string } }) => {
+const ProductPage = () => {
+  const searchParams = useSearchParams();
+  const productId = searchParams.get('id');
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { artToy, artToyLoading } = useAppSelector((state) => state.product);
@@ -29,13 +31,18 @@ const Page = ({ params }: { params: { id: string } }) => {
   }, []);
 
   useEffect(() => {
+    if (!productId) {
+      router.push('/store');
+      return;
+    }
+
     const fetchArtToy = async () => {
       dispatch(setArtToyLoading(true));
       setFetchError(false);
 
       try {
-        // USE YOUR INTERNAL API ROUTE INSTEAD
-        const url = `/api/products/${params.id}`;
+        // Use internal API route
+        const url = `/api/products/${productId}`;
         console.log('Fetching from internal API:', url);
         
         const response = await fetch(url, {
@@ -58,7 +65,6 @@ const Page = ({ params }: { params: { id: string } }) => {
           dispatch(setArtToy(result.data));
           setUpdatedToy(result.data);
         } else if (result.data) {
-          // Handle case where API doesn't return success flag
           dispatch(setArtToy(result.data));
           setUpdatedToy(result.data);
         } else {
@@ -73,7 +79,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     };
 
     fetchArtToy();
-  }, [dispatch, params.id]);
+  }, [dispatch, productId, router]);
 
   if (artToyLoading) {
     return (
@@ -83,10 +89,10 @@ const Page = ({ params }: { params: { id: string } }) => {
     );
   }
 
-  if (fetchError) {
+  if (fetchError || !productId) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-lg text-gray-600">
-        <p>Product not found (ID: {params.id})</p>
+        <p>Product not found</p>
         <Button className="mt-4" onClick={() => router.push('/store')}>
           Return to Store
         </Button>
@@ -98,8 +104,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     e.preventDefault();
 
     try {
-      // USE YOUR INTERNAL API ROUTE
-      const response = await fetch(`/api/products/${params.id}`, {
+      const response = await fetch(`/api/products/${productId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -113,7 +118,6 @@ const Page = ({ params }: { params: { id: string } }) => {
       });
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         alert("Art toy updated successfully!");
         dispatch(setArtToy(data.data || updatedToy));
@@ -137,8 +141,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     }
 
     try {
-      // USE YOUR INTERNAL API ROUTE
-      const response = await fetch(`/api/products/${params.id}`, {
+      const response = await fetch(`/api/products/${productId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -337,161 +340,133 @@ const Page = ({ params }: { params: { id: string } }) => {
               <div className="mt-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="sku"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="sku">
                       SKU
                     </label>
                     <input
                       type="text"
                       id="sku"
                       name="sku"
-                      value={updatedToy.sku}
+                      value={updatedToy.sku || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="name"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="name">
                       Name
                     </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
-                      value={updatedToy.name}
+                      value={updatedToy.name || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="description"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="description">
                       Description
                     </label>
                     <textarea
                       id="description"
                       name="description"
                       rows={4}
-                      value={updatedToy.description}
+                      value={updatedToy.description || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="arrivalDate"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="arrivalDate">
                       Arrival Date
                     </label>
                     <input
                       type="date"
                       id="arrivalDate"
                       name="arrivalDate"
-                      value={updatedToy.arrivalDate}
+                      value={updatedToy.arrivalDate || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="availableQuota"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="availableQuota">
                       Available Quota
                     </label>
                     <input
                       type="number"
                       id="availableQuota"
                       name="availableQuota"
-                      value={updatedToy.availableQuota}
+                      value={updatedToy.availableQuota || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium text-gray-700"
-                      htmlFor="posterPicture"
-                    >
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="posterPicture">
                       Poster Picture URL
                     </label>
                     <input
                       type="text"
                       id="posterPicture"
                       name="posterPicture"
-                      value={updatedToy.posterPicture}
+                      value={updatedToy.posterPicture || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Price
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Price</label>
                     <input
                       type="number"
                       name="price"
-                      value={updatedToy.price}
+                      value={updatedToy.price || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Discount (%)
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Discount (%)</label>
                     <input
                       type="number"
                       name="discountPercentage"
-                      value={updatedToy.discountPercentage}
+                      value={updatedToy.discountPercentage || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Rating
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Rating</label>
                     <input
                       type="number"
                       step="0.1"
                       min="0"
                       max="5"
                       name="rating"
-                      value={updatedToy.rating}
+                      value={updatedToy.rating || ''}
                       onChange={handleInputChange}
                       className="mt-1 block w-full p-3 border border-gray-300 rounded-lg"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Images
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Images</label>
                     {updatedToy.images?.map((img: string, index: number) => (
                       <div key={index} className="flex gap-2 mt-2">
                         <input
                           type="text"
                           value={img}
-                          onChange={(e) =>
-                            handleArrayChange("images", index, e.target.value)
-                          }
+                          onChange={(e) => handleArrayChange("images", index, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded-lg"
                         />
                         <Button
@@ -503,27 +478,19 @@ const Page = ({ params }: { params: { id: string } }) => {
                         </Button>
                       </div>
                     ))}
-                    <Button
-                      type="button"
-                      className="mt-2"
-                      onClick={() => handleArrayAdd("images")}
-                    >
+                    <Button type="button" className="mt-2" onClick={() => handleArrayAdd("images")}>
                       + Add Image
                     </Button>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Tags
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700">Tags</label>
                     {updatedToy.tags?.map((tag: string, index: number) => (
                       <div key={index} className="flex gap-2 mt-2">
                         <input
                           type="text"
                           value={tag}
-                          onChange={(e) =>
-                            handleArrayChange("tags", index, e.target.value)
-                          }
+                          onChange={(e) => handleArrayChange("tags", index, e.target.value)}
                           className="w-full p-3 border border-gray-300 rounded-lg"
                         />
                         <Button
@@ -535,11 +502,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                         </Button>
                       </div>
                     ))}
-                    <Button
-                      type="button"
-                      className="mt-2"
-                      onClick={() => handleArrayAdd("tags")}
-                    >
+                    <Button type="button" className="mt-2" onClick={() => handleArrayAdd("tags")}>
                       + Add Tag
                     </Button>
                   </div>
@@ -550,7 +513,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         </div>
       ) : (
         <div className="flex items-center justify-center h-screen text-lg text-gray-600">
-          <p>No ArtToy data found. Please check the API or artToy object.</p>
+          <p>No ArtToy data found.</p>
         </div>
       )}
 
@@ -569,4 +532,4 @@ const Page = ({ params }: { params: { id: string } }) => {
   );
 };
 
-export default Page;
+export default ProductPage;
