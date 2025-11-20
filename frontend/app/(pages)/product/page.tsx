@@ -41,13 +41,22 @@ const ProductPage = () => {
       setFetchError(false);
 
       try {
-        // Use internal API route
-        const url = `/api/products/${productId}`;
-        console.log('Fetching from internal API:', url);
+        // Fetch directly from external API
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        
+        if (!apiUrl) {
+          console.error('NEXT_PUBLIC_API_URL is not defined');
+          setFetchError(true);
+          return;
+        }
+
+        const url = `${apiUrl}/arttoys/${productId}`;
+        console.log('Fetching from:', url);
         
         const response = await fetch(url, {
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           cache: 'no-store',
         });
@@ -104,18 +113,21 @@ const ProductPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          ...updatedToy,
-          images: updatedToy.images || [],
-          tags: updatedToy.tags || [],
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${productId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            ...updatedToy,
+            images: updatedToy.images || [],
+            tags: updatedToy.tags || [],
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -123,7 +135,7 @@ const ProductPage = () => {
         dispatch(setArtToy(data.data || updatedToy));
         setIsEditing(false);
       } else {
-        alert(data.error || data.message || "Failed to update art toy");
+        alert(data.message || "Failed to update art toy");
       }
     } catch (error) {
       console.error("Update error:", error);
@@ -141,13 +153,16 @@ const ProductPage = () => {
     }
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/arttoys/${productId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       const data = await response.json();
 
@@ -155,7 +170,7 @@ const ProductPage = () => {
         alert("Product deleted successfully!");
         router.push("/store");
       } else {
-        alert(data.error || data.message || "Failed to delete product");
+        alert(data.message || "Failed to delete product");
       }
     } catch (error) {
       console.error(error);
@@ -213,7 +228,7 @@ const ProductPage = () => {
   return (
     <>
       {artToy && artToy.images && artToy.name && artToy.description ? (
-        <div className="sm:flex block bg-slate-50">
+        <div className="sm:flex block bg-slate-50 min-h-screen pb-24">
           <ProductImgSlider images={artToy.images} />
           <div className="flex-1 p-4">
             <h1 className="text-3xl font-bold text-sky-900">{artToy.name}</h1>
