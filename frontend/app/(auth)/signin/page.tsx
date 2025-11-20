@@ -20,7 +20,7 @@ const Page = () => {
           </h2>
           <p className="py-2 text-sky-900">
             {/* 1. Add the missing '?' manually */}
-            Don't have an account?
+            Don&apos;t have an account?
             {/* 2. Add {" "} to force a space before the link */}{" "}
             <Link href={"/signup"} className="translate-y-1 underline">
               Sign up
