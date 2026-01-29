@@ -68,7 +68,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Suspense fallback={<Loading />}>
-        <Header onThemeChange={toggleTheme} currentTheme={currentTheme} />
+        <div style={{ position: "sticky", top: 0, zIndex: 1000 }}>
+           <Header onThemeChange={toggleTheme} currentTheme={currentTheme} />
+        </div>
+
         <div className={currentTheme}>
           {children}
         </div>

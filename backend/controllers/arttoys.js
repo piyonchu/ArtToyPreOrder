@@ -20,6 +20,7 @@ exports.getArtToys = async (req, res) => {
       limit,
       page, // Added pagination support
     } = req.query;
+    //console.log(req.query)
 
     // --- PAGINATION SETUP ---
     const limitNum = parseInt(limit) || 12;
@@ -134,6 +135,7 @@ exports.getArtToys = async (req, res) => {
       totalPages: Math.ceil(totalCount / limitNum),
       data: artToys,
     });
+    
 
   } catch (error) {
     console.error("Get ArtToys Error:", error);

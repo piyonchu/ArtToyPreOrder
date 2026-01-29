@@ -17,7 +17,7 @@ export default function Home() {
           key={item.id}
         >
           {/* LEFT — IMAGE */}
-          <div className="md:w-1/2 h-[300px] md:h-[400px] flex items-center justify-center bg-white">
+          <div className="md:w-1/2 h-[300px] md:h-[400px] flex items-center justify-center bg-white relative z-50">
             <Image
               src={item.image}
               alt={item.title}
@@ -28,7 +28,7 @@ export default function Home() {
           </div>
 
           {/* RIGHT — TEXT (STICK TO RIGHT SIDE) */}
-          <div className="md:w-1/2 p-4 flex flex-col justify-center items-end text-right">
+          <div className="md:w-1/2 p-4 flex flex-col justify-center items-end text-right z-10">
             {/* Added variants for title text color */}
             <h2 className="text-lg md:text-xl font-bold text-sky-800 pink:text-pink-800 green:text-green-800 purple:text-purple-800 transition-colors duration-300">
               {item.title}
