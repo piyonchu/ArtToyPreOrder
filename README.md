@@ -12,12 +12,20 @@ A full-stack e-commerce platform engineered specifically for the Art Toy market.
 ![1](./img/1.png)
 ![1](./img/2.png)
 
+
+https://github.com/user-attachments/assets/f01ef8b5-a1de-4d2b-91c1-07bd88e33886
+
+
 ## ✨Key Features
 ### 🎨 Dynamic Theming Engine
 **The Challenge:** Users require personalized viewing experiences, but hard-coding themes creates technical debt.  
 **The Solution:** Implemented a global state management system using React Context and Tailwind CSS. This allows real-time, seamless theme switching across the entire application without page reloads.
   ![1](./img/5.png)
   ![1](./img/3.png)
+
+
+https://github.com/user-attachments/assets/548f7a78-e04f-492a-86aa-fa3ff0583a02
+
 
 ### 🔎"Smart Search" & Advanced Filtering
 **The Challenge:** Standard database queries often fail to find relevant products if the user makes typos or uses vague keywords.  
@@ -26,6 +34,10 @@ A full-stack e-commerce platform engineered specifically for the Art Toy market.
 * **Multi-Layered Filtering:** Users can simultaneously filter by logic (AND/OR), price range, discount percentage, and category tags.
 
 ![1](./img/6.png)
+
+
+https://github.com/user-attachments/assets/5021ae07-51a5-46cc-ac47-160457d60328
+
 
 ### 🛡️Security
 Prioritized security best practices to protect user data and prevent common web vulnerabilities:
@@ -38,8 +50,12 @@ Prioritized security best practices to protect user data and prevent common web 
     * Sanitization against XSS and NoSQL Injection attacks.
 
 ### 👑Admin Management Portal
-  admin account has differnet UI from user whihc u can edit or add prodcut simply.of any user. no need for manullay in database.
+Designed a separated, secured GUI for administrators to manage inventory (CRUD operations) without needing direct database access, streamlining the operational workflow.
   ![1](./img/4.png)
+
+
+https://github.com/user-attachments/assets/3b0b5690-85b4-4022-820a-70b8e34352a7
+
 
 
 
